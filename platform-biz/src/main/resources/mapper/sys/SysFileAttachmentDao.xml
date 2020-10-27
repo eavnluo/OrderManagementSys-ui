@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.platform.modules.sys.dao.SysFileAttachmentDao">
+
+    <sql id="selectSql">
+        SELECT
+        T.ID,
+        T.BELONG_TO,
+        T.FILE_NAME,
+        T.FILE_SUFFIX,
+        T.FILE_SIZE,
+        T.FILE_URL,
+        T.CREATED_BY,
+        T.CREATED_TIME,
+        T.UPDATED_BY,
+        T.UPDATED_TIME,
+        T.DEL_FLAG,
+        T.IMG_DESCRIBE,
+        T.LINK_ADDRESS
+        FROM SYS_FILE_ATTACHMENT T
+        WHERE 1=1 AND T.DEL_FLAG = '0'
+        <if test="params.imgDescribe != null and params.imgDescribe.trim() != ''">
+            AND T.IMG_DESCRIBE LIKE '%${params.imgDescribe}%'
+        </if>
+        <if test="params.belongTo != null and params.belongTo.trim() != ''">
+            AND T.BELONG_TO LIKE '%${params.belongTo}%'
+        </if>
+    </sql>
+
+    <select id="selectSysFileAttachmentPage" resultType="com.platform.modules.sys.entity.SysFileAttachmentEntity">
+        <include refid="selectSql"/>
+    </select>
+
+    <select id="queryAll" resultType="com.platform.modules.sys.entity.SysFileAttachmentEntity">
+        <include refid="selectSql"/>
+    </select>
+</mapper>

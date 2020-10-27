@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.platform.modules.order.dao.OrderGoodUniqueCodeStandardDao">
+
+    <sql id="selectSql">
+        SELECT
+        T.ID,
+        T.ORDER_ITEM,
+        T.GOOD_NAME,
+        T.GOOD_CODE,
+        T.UNIQUE_CODE,
+        T.DEL_FLAG,
+        T.CREATED_BY,
+        T.CREATED_TIME,
+        T.UPDATED_BY,
+        T.UPDATED_TIME
+        FROM ORDER_GOOD_UNIQUE_CODE_STANDARD T
+        WHERE 1=1
+        <if test="params.orderItem != null and params.orderItem.trim() != ''">
+            AND T.ORDER_ITEM LIKE '%${params.orderItem}%'
+        </if>
+    </sql>
+
+    <select id="selectOrderGoodUniqueCodeStandardPage" resultType="com.platform.modules.order.entity.OrderGoodUniqueCodeStandardEntity">
+        <include refid="selectSql"/>
+    </select>
+
+    <select id="queryAll" resultType="com.platform.modules.order.entity.OrderGoodUniqueCodeStandardEntity">
+        <include refid="selectSql"/>
+    </select>
+    <select id="selectByOrderItem"
+            resultType="com.platform.modules.order.entity.OrderGoodUniqueCodeStandardEntity">
+        SELECT
+            T.ID,
+            T.ORDER_ITEM,
+            T.GOOD_NAME,
+            T.GOOD_CODE,
+            T.UNIQUE_CODE,
+            T.DEL_FLAG,
+            T.CREATED_BY,
+            T.CREATED_TIME,
+            T.UPDATED_BY,
+            T.UPDATED_TIME
+        FROM ORDER_GOOD_UNIQUE_CODE_STANDARD T
+        WHERE T.ORDER_ITEM = #{orderItem}
+    </select>
+</mapper>

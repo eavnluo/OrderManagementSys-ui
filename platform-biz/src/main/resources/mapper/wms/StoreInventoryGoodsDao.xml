@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.platform.modules.wms.dao.StoreInventoryGoodsDao">
+
+    <sql id="selectSql">
+        SELECT
+        T.ID,
+        T.ORDER_ITEM,
+        T.ORDER_TYPE,
+        T.ORDER_GOODS_ID,
+        T.GOODS_ID,
+        T.GOODS_NAME,
+        T.GOODS_MODEL,
+        T.SPECIFICATION,
+        T.GOODS_PACKING,
+        T.GOODS_MATERIAL,
+        T.BRAND,
+        T.GOODS_BATCH,
+        T.PRODUCTION_DATE,
+        T.GOODS_NUM,
+        T.PRICE,
+        T.OUT_IN_ODD_NUM,
+        T.STORAGE_LOCATION,
+        T.STORE_CODE,
+        T.CUSTOMER_CODE,
+        T.CREATED_BY,
+        T.CREATED_TIME,
+        T.UPDATED_BY,
+        T.UPDATED_TIME,
+        T.DEL_FLAG
+        FROM STORE_INVENTORY_GOODS T
+        WHERE 1=1
+        <if test="params.name != null and params.name.trim() != ''">
+            AND T.NAME LIKE '%${params.name}%'
+        </if>
+    </sql>
+
+    <select id="selectStoreInventoryGoodsPage" resultType="com.platform.modules.wms.entity.StoreInventoryGoodsEntity">
+        <include refid="selectSql"/>
+    </select>
+
+    <select id="queryAll" resultType="com.platform.modules.wms.entity.StoreInventoryGoodsEntity">
+        <include refid="selectSql"/>
+    </select>
+    <select id="getOutInRecords" resultType="map">
+        SELECT distinct
+            S.ORDER_ITEM orderItem,
+            S.ORDER_TYPE orderType,
+            S.GOODS_NUM goodsNum,
+            S.OUT_IN_ODD_NUM outInOddNum,
+            S.STORAGE_LOCATION storageLocation,
+            S.CREATED_TIME createdTime,
+            S.PRICE price,
+            O.ORDER_NO orderNo,
+            O.INVOICE_NO invoiceNo,
+            C.WAY_BILL_NO wayBillNo,
+            C.SIGN_NUMBER signNumber
+        FROM
+        STORE_INVENTORY_GOODS S
+        LEFT JOIN ORDER_HEADER_INFO O ON S.ORDER_ITEM = O.ORDER_ITEM
+        LEFT JOIN ORDER_CAR_RELATION C ON S.ORDER_ITEM = C.ORDER_ITEM
+        WHERE S.GOODS_ID = #{goodsId}
+        AND S.ORDER_ITEM IN
+        <foreach collection="orderItems" separator="," open="(" close=")" item="item">
+            #{item}
+        </foreach>
+        ORDER BY S.CREATED_TIME DESC
+    </select>
+</mapper>

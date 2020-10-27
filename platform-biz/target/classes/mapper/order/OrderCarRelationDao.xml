@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.platform.modules.order.dao.OrderCarRelationDao">
+
+    <sql id="selectSql">
+        SELECT
+        T.ID,
+        T.ORDER_ITEM,
+        T.WAY_BILL_NO,
+        T.SIGN_NUMBER,
+        T.CAR_ID,
+        T.PLATE_NUMBER,
+        T.TYPE,
+        T.DRIVER,
+        T.DRIVER_LINK,
+        T.CREATED_BY,
+        T.CREATED_TIME,
+        T.UPDATED_BY,
+        T.UPDATED_TIME,
+        T.DEL_FLAG
+        FROM ORDER_CAR_RELATION T
+        WHERE 1=1
+        AND T.DEL_FLAG = '0'
+        <if test="params.name != null and params.name.trim() != ''">
+            AND T.NAME LIKE '%${params.name}%'
+        </if>
+        <if test="params.orderItem != null and params.orderItem.trim() != ''">
+            AND T.ORDER_ITEM = #{params.orderItem}
+        </if>
+    </sql>
+
+    <select id="selectOrderCarRelationPage" resultType="com.platform.modules.order.entity.OrderCarRelationEntity">
+        <include refid="selectSql"/>
+    </select>
+
+    <select id="queryAll" resultType="com.platform.modules.order.entity.OrderCarRelationEntity">
+        <include refid="selectSql"/>
+    </select>
+</mapper>

@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.platform.modules.base.dao.BaseSupplyInfoDao">
+
+
+    <sql id="selectSql">
+        SELECT
+        T.ID,
+        T.SUPPLY_CODE,
+        T.SUPPLY_NAME,
+        T.SUPPLY_ADDRESS,
+        T.TYPE,
+        T.POSTCODE,
+        T.PHONE,
+        T.LINK_PHONE,
+        T.LINK_NAME,
+        T.REGION,
+        T.COUNTRY,
+        T.PRIVINCE,
+        T.CITY,
+        T.AREA,
+        T.ADDRESS,
+        T.REMARK1,
+        T.REMARK2,
+        T.REMARK3,
+        T.CREATED_BY,
+        T.CREATED_TIME,
+        T.UPDATED_BY,
+        T.UPDATED_TIME,
+        T.DEL_FLAG,
+        T.LEGAL_PERSON,
+        T.TAX_REGISTRATION_NO,
+        T.EMAIL_ADDRESS,
+        T.MAIN_BUSINESS_DESC,
+        T.REGISTER_USER_ID
+        FROM BASE_SUPPLY_INFO T
+        WHERE T.DEL_FLAG = '0'
+        <if test="params.supplyName != null and params.supplyName.trim() != ''">
+            AND T.SUPPLY_NAME LIKE '%${params.supplyName}%'
+        </if>
+        <if test="params.type != null and params.type.trim() != ''">
+            AND T.TYPE LIKE '%${params.type}%'
+        </if>
+    </sql>
+
+    <select id="selectBaseSupplyInfoPage" resultType="com.platform.modules.base.entity.BaseSupplyInfoEntity">
+        SELECT
+        T.ID,
+        T.SUPPLY_CODE,
+        T.SUPPLY_NAME,
+        T.SUPPLY_ADDRESS,
+        T.TYPE,
+        T.POSTCODE,
+        T.PHONE,
+        T.LINK_PHONE,
+        T.LINK_NAME,
+        T.REGION,
+        T.COUNTRY,
+        (SELECT NAME FROM BASE_AREA WHERE ID=T.PRIVINCE) AS PRIVINCE,
+        (SELECT NAME FROM BASE_AREA WHERE ID=T.CITY) AS CITY,
+        (SELECT NAME FROM BASE_AREA WHERE ID=T.AREA) AS AREA,
+        T.ADDRESS,
+        T.REMARK1,
+        T.REMARK2,
+        T.REMARK3,
+        T.CREATED_BY,
+        T.CREATED_TIME,
+        T.UPDATED_BY,
+        T.UPDATED_TIME,
+        T.DEL_FLAG,
+        T.LEGAL_PERSON,
+        T.TAX_REGISTRATION_NO,
+        T.EMAIL_ADDRESS,
+        T.MAIN_BUSINESS_DESC,
+        T.REGISTER_USER_ID
+        FROM BASE_SUPPLY_INFO T
+        WHERE T.DEL_FLAG = '0'
+        <if test="params.supplyName != null and params.supplyName.trim() != ''">
+            AND T.SUPPLY_NAME LIKE '%${params.supplyName}%'
+        </if>
+        <if test="params.type != null and params.type.trim() != ''">
+            AND T.TYPE LIKE '%${params.type}%'
+        </if>
+    </select>
+
+    <select id="queryAll" resultType="com.platform.modules.base.entity.BaseSupplyInfoEntity">
+        <include refid="selectSql"/>
+    </select>
+    <select id="findeList" resultType="java.util.Map">
+        SELECT
+        T.SUPPLY_CODE AS factoryCode,
+        T.SUPPLY_NAME AS factoryName,
+        T.SUPPLY_ADDRESS AS factoryAddress,
+        T.PHONE AS phone,
+        T.LINK_NAME AS linkName,
+        T.LINK_PHONE AS linkPhone,
+        T.REGION AS region
+        FROM BASE_SUPPLY_INFO T
+        WHERE T.DEL_FLAG = '0'
+    </select>
+
+    <select id="getBySupply" resultType="com.platform.modules.base.entity.BaseSupplyInfoEntity">
+        SELECT
+          T.ID,
+        T.SUPPLY_CODE,
+        T.SUPPLY_NAME,
+        T.SUPPLY_ADDRESS,
+        T.TYPE,
+        T.POSTCODE,
+        T.PHONE,
+        T.LINK_PHONE,
+        T.LINK_NAME,
+        T.REGION,
+        T.COUNTRY,
+        T.PRIVINCE,
+        T.CITY,
+        T.AREA,
+        T.ADDRESS,
+        T.REMARK1,
+        T.REMARK2,
+        T.REMARK3,
+        T.CREATED_BY,
+        T.CREATED_TIME,
+        T.UPDATED_BY,
+        T.UPDATED_TIME,
+        T.DEL_FLAG,
+        T.LEGAL_PERSON,
+        T.TAX_REGISTRATION_NO,
+        T.EMAIL_ADDRESS,
+        T.MAIN_BUSINESS_DESC,
+        T.REGISTER_USER_ID
+         FROM
+        BASE_SUPPLY_INFO T
+        WHERE T.DEL_FLAG = '0'
+    </select>
+
+
+    <select id="getBySupplyType" resultType="com.platform.modules.base.entity.BaseSupplyInfoEntity">
+        SELECT
+          T.ID,
+        T.SUPPLY_CODE,
+        T.SUPPLY_NAME,
+        T.SUPPLY_ADDRESS,
+        T.TYPE,
+        T.POSTCODE,
+        T.PHONE,
+        T.LINK_PHONE,
+        T.LINK_NAME,
+        T.REGION,
+        T.PRIVINCE,
+        T.CITY,
+        T.AREA,
+        T.ADDRESS,
+        T.REMARK1,
+        T.REMARK2,
+        T.REMARK3,
+        T.CREATED_BY,
+        T.CREATED_TIME,
+        T.UPDATED_BY,
+        T.UPDATED_TIME,
+        T.DEL_FLAG,
+        T.INFO_NUM,
+        T.LEGAL_PERSON,
+        T.TAX_REGISTRATION_NO,
+        T.EMAIL_ADDRESS,
+        T.MAIN_BUSINESS_DESC,
+        T.REGISTER_USER_ID
+         FROM
+        BASE_SUPPLY_INFO T
+        WHERE
+        T.DEL_FLAG = '0' AND T.TYPE='F'
+    </select>
+    <select id="getSupplyInfo" resultType="java.util.Map">
+        SELECT
+         T.SUPPLY_CODE AS supplyCode,
+         T.SUPPLY_NAME AS supplyName,
+         T.SUPPLY_ADDRESS AS supplyAddress,
+         BL.NAME AS name,
+         BL.PHONE AS phone
+         FROM
+         BASE_SUPPLY_INFO AS T
+         JOIN base_linkman_info AS BL ON BL.BELONG_TO=T.SUPPLY_CODE
+         WHERE T.TYPE='F'
+
+    </select>
+    <select id="findNumberForChart" resultType="java.lang.Integer">
+        SELECT
+            COUNT( ID )
+        FROM
+            base_supply_info
+        WHERE
+            TYPE = 'F'
+            <if test="isYesterday">
+                AND DATE_FORMAT(CREATED_TIME, '%Y %m %d') = DATE_FORMAT(DATE_SUB(curdate(),interval 1 day),'%Y %m %d')
+            </if>
+    </select>
+
+    <select id="findListByType" resultType="com.platform.modules.base.entity.BaseSupplyInfoEntity">
+        SELECT DISTINCT
+            S.ID,
+            D.SUPPLY_CODE,
+            S.SUPPLY_NAME
+        FROM
+            PRICE_DETAIL D
+            INNER JOIN BASE_SUPPLY_INFO S ON D.SUPPLY_CODE = S.SUPPLY_CODE
+        WHERE
+            D.PRICE_INFO_ID IN (
+              SELECT I.ID FROM PRICE_INFO I WHERE I.TYPE = '0' AND I.STATUS = '0' AND I.COMPANY_CODE = #{companyCode}
+            )
+            AND S.TYPE LIKE '%${type}%'
+            AND S.DEL_FLAG = '0'
+    </select>
+</mapper>

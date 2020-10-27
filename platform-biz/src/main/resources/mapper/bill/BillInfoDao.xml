@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.platform.modules.bill.dao.BillInfoDao">
+
+    <sql id="selectSql">
+        SELECT
+        T.ID,
+        T.BILL_NO,
+        T.INVOICE_NO,
+        T.ORDER_ITEM,
+        T.ORDER_NO,
+        T.ORDER_TIME,
+        T.CUSTOMER_CODE,
+        T.SUPPLY_CODE,
+        T.MONEY,
+        T.VAT_RATE,
+        T.BEFORE_TAX,
+        T.AFTER_TAX,
+        T.CONFIRMED_MONEY,
+        T.UNCONFIRMED_MONEY,
+        T.REMARK,
+        T.STATUS,
+        T.IS_CONFIRM,
+        T.TYPE,
+        T.PARENT_ID,
+        T.CREATE_BY,
+        T.CREATE_TIME,
+        T.UPDATE_BY,
+        T.UPDATE_TIME
+        FROM BILL_INFO T
+        WHERE T.STATUS = '0'
+        <if test="params.billNo != null and params.billNo.trim() != ''">
+            AND T.BILL_NO LIKE '%${params.billNo}%'
+        </if>
+        <if test="params.type != null and params.type.trim() != ''">
+            AND T.TYPE = #{params.type}
+        </if>
+        <if test="params.orderItem != null and params.orderItem.trim() != ''">
+            AND T.ORDER_ITEM = #{params.orderItem}
+        </if>
+        <if test="params.customerCode != null and params.customerCode.trim() != ''">
+            AND T.CUSTOMER_CODE = #{params.customerCode}
+        </if>
+        <if test="params.supplyCode != null and params.supplyCode.trim() != ''">
+            AND T.SUPPLY_CODE = #{params.supplyCode}
+        </if>
+        <if test="params.id != null and params.id.trim() != ''">
+            AND T.ID = #{params.id}
+        </if>
+        ORDER BY T.BILL_NO DESC
+    </sql>
+    <update id="deleteById">
+        UPDATE BILL_INFO T SET T.STATUS = '1', T.UPDATE_BY = #{userId}, T.UPDATE_TIME = #{updateTime} WHERE T.ID = #{id} OR T.PARENT_ID = #{id}
+    </update>
+    <update id="updateMoney">
+        UPDATE BILL_INFO T
+           SET T.CONFIRMED_MONEY = T.CONFIRMED_MONEY + #{confirmMoney},
+               T.UNCONFIRMED_MONEY = T.UNCONFIRMED_MONEY - #{confirmMoney},
+               T.UPDATE_BY = #{userId},
+               T.UPDATE_TIME = #{updateTime},
+               T.REMARK = #{remark}
+           WHERE T.BILL_NO = #{billNo}
+    </update>
+    <update id="doConfirm">
+        UPDATE BILL_INFO T
+           SET T.IS_CONFIRM = '1',
+               T.UPDATE_BY = #{userId},
+               T.UPDATE_TIME = #{updateTime}
+         WHERE T.ORDER_ITEM = #{orderItem}
+    </update>
+
+    <select id="selectStatementInfoPage" resultType="com.platform.modules.bill.entity.BillInfoEntity">
+        <include refid="selectSql"/>
+    </select>
+
+    <select id="queryAll" resultType="com.platform.modules.bill.entity.BillInfoEntity">
+        <include refid="selectSql"/>
+    </select>
+
+    <select id="getListGroupMonth" resultType="map">
+        SELECT
+            DATE_FORMAT( s.create_time, '%Y-%m' ) yearMonth,
+            IFNULL( sum( s.money ), 0 ) AS money,
+            IFNULL( sum( s.before_tax ), 0 ) AS beforeTax,
+            IFNULL( sum( s.vat_rate ), 0 ) AS vatRate,
+            IFNULL( sum( s.after_tax ), 0 ) AS afterTax,
+            IFNULL( sum( s.confirmed_money ), 0 ) AS confirmedMoney,
+            IFNULL( sum( s.unconfirmed_money ), 0 ) AS unconfirmedMoney
+        FROM
+            BILL_INFO s
+        WHERE 1=1
+            AND s.status = '0' and s.is_confirm = '1'
+            <if test="params.customerCode != null and params.customerCode.trim() != ''">
+                AND s.customer_code = #{params.customerCode}
+            </if>
+            <if test="params.supplyCode != null and params.supplyCode.trim() != ''">
+                AND s.supply_code = #{params.supplyCode}
+            </if>
+            <if test="params.type != null and params.type.trim() != ''">
+                AND s.type = #{params.type}
+            </if>
+            <if test="params.yearMonth != null and params.yearMonth.trim() != ''">
+                AND (YEAR ( s.create_time ) = YEAR ( STR_TO_DATE( #{params.yearMonth}, '%Y-%m' ) )
+                AND MONTH ( s.create_time ) = MONTH ( STR_TO_DATE( #{params.yearMonth}, '%Y-%m' ) ))
+            </if>
+        GROUP BY
+            DATE_FORMAT( s.create_time, '%Y-%m' )
+        ORDER BY
+            yearMonth
+    </select>
+    <select id="getListByMonth" resultType="com.platform.modules.bill.entity.BillInfoEntity">
+        SELECT
+            s.order_no orderNo,
+            IFNULL( sum( s.money ), 0 ) money,
+            IFNULL( sum( s.before_tax ), 0 ) beforeTax,
+            IFNULL( sum( s.vat_rate ), 0 ) vatRate,
+            IFNULL( sum( s.after_tax ), 0 ) afterTax,
+            IFNULL( sum( s.confirmed_money ), 0 ) confirmedMoney,
+            IFNULL( sum( s.unconfirmed_money ), 0 ) unconfirmedMoney
+        FROM
+            BILL_INFO s
+        WHERE s.status = '0' and s.is_confirm = '1'
+            <if test="params.customerCode != null and params.customerCode.trim() != ''">
+                AND s.customer_code = #{params.customerCode}
+            </if>
+            <if test="params.supplyCode != null and params.supplyCode.trim() != ''">
+                AND s.supply_code = #{params.supplyCode}
+            </if>
+            <if test="params.type != null and params.type.trim() != ''">
+                AND s.type = #{params.type}
+            </if>
+            AND YEAR ( s.create_time ) = YEAR ( STR_TO_DATE( #{params.yearMonth}, '%Y-%m' ) )
+            AND MONTH ( s.create_time ) = MONTH ( STR_TO_DATE( #{params.yearMonth}, '%Y-%m' ) )
+        <if test="params.orderNo != null and params.orderNo.trim() != ''">
+            AND s.order_no = #{params.orderNo}
+        </if>
+        GROUP BY s.order_no
+        ORDER BY s.order_no DESC
+    </select>
+
+    <select id="getListByOrderNo" resultType="com.platform.modules.bill.entity.BillInfoEntity">
+        SELECT
+            s.id id,
+            s.invoice_no invoiceNo,
+            s.order_item orderItem,
+            s.bill_no billNo,
+            IFNULL( s.money, 0 ) money,
+            IFNULL( s.before_tax, 0 ) beforeTax,
+            IFNULL( s.vat_rate, 0 ) vatRate,
+            IFNULL( s.after_tax, 0 ) afterTax,
+            IFNULL( s.confirmed_money, 0 ) confirmedMoney,
+            IFNULL( s.unconfirmed_money, 0 ) unconfirmedMoney
+        FROM
+            BILL_INFO s
+        WHERE
+            s.order_no = #{params.orderNo}
+            AND s.status = '0' and s.is_confirm = '1'
+            <if test="params.customerCode != null and params.customerCode.trim() != ''">
+                AND s.customer_code = #{params.customerCode}
+            </if>
+            <if test="params.supplyCode != null and params.supplyCode.trim() != ''">
+                AND s.supply_code = #{params.supplyCode}
+            </if>
+            <if test="params.type != null and params.type.trim() != ''">
+                AND s.type = #{params.type}
+            </if>
+            <if test="params.invoiceNo != null and params.invoiceNo.trim() != ''">
+                AND s.invoice_no = #{params.invoiceNo}
+            </if>
+            <if test="params.yearMonth != null and params.yearMonth.trim() != ''">
+                AND (YEAR ( s.create_time ) = YEAR ( STR_TO_DATE( #{params.yearMonth}, '%Y-%m' ) )
+                AND MONTH ( s.create_time ) = MONTH ( STR_TO_DATE( #{params.yearMonth}, '%Y-%m' ) ))
+            </if>
+            ORDER BY s.order_item DESC
+    </select>
+
+    <select id="getByOrderItem" resultType="com.platform.modules.bill.entity.BillInfoEntity">
+        <include refid="selectSql"/>
+    </select>
+
+    <select id="getCountForToday" resultType="java.lang.Integer">
+        SELECT
+            COUNT(DISTINCT BILL_NO)
+        FROM BILL_INFO T
+        WHERE T.BILL_NO IS NOT NULL
+        AND to_days(T.CREATE_TIME) = to_days(now())
+    </select>
+</mapper>

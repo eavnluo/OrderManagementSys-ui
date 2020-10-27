@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.platform.modules.wms.dao.StoreInventoryInfoDao">
+
+    <sql id="selectSql">
+        SELECT
+        T.ID,
+        T.ITEM_ID,
+        T.ITEM_CODE,
+        T.ITEM_NAME,
+        T.ITEM_QUANTITY,
+        T.STORE_CODE,
+        T.STORE_NAME,
+        T.SPACE_CODE,
+        T.SPACE_ADDRESS,
+        T.CREATED_BY,
+        T.CREATED_TIME,
+        T.UPDATED_BY,
+        T.UPDATED_TIME,
+        T.DEL_FLAG,
+        T.OWNER_CODE,
+        T.STORE_HOUSE,
+        T.OWNER_NAME
+        FROM STORE_INVENTORY_INFO T
+        WHERE T.DEL_FLAG = '0'
+        <if test="params.itemName != null and params.itemName.trim() != ''">
+            AND T.ITEM_NAME LIKE '%${params.itemName}%'
+        </if>
+        <if test="params.storeName != null and params.storeName.trim() != ''">
+            AND T.STORE_NAME like '%${params.storeName}%'
+        </if>
+        <if test="params.ownerName != null and params.ownerName.trim() != ''">
+            AND T.OWNER_NAME like '%${params.ownerName}%'
+        </if>
+    </sql>
+
+    <select id="selectStoreInventoryInfoPage" resultType="com.platform.modules.wms.entity.StoreInventoryInfoEntity">
+        <include refid="selectSql"/>
+    </select>
+
+    <select id="queryAll" resultType="com.platform.modules.wms.entity.StoreInventoryInfoEntity">
+        <include refid="selectSql"/>
+    </select>
+    <select id="findMonthStock" resultType="java.util.Map">
+        SELECT chart.time, SUM(chart.ITEM_QUANTITY) as num
+            FROM (
+                SELECT ID, ITEM_QUANTITY, DATE_FORMAT( CREATED_TIME, '%Y-%m' ) AS time FROM store_inventory_info
+                WHERE DEL_FLAG = 0
+                    AND DATE_FORMAT(CREATED_TIME, '%Y') = DATE_FORMAT(curdate(),'%Y')
+            ) AS chart
+        GROUP BY chart.time
+    </select>
+    <select id="getInfo" resultType="com.platform.modules.wms.entity.StoreInventoryInfoEntity">
+        SELECT *
+        FROM STORE_INVENTORY_INFO T
+        WHERE T.DEL_FLAG = '0'
+          AND T.STORE_CODE = #{storeCode}
+          <if test="itemCode != null and itemCode.trim() != ''">
+              AND T.ITEM_CODE  = #{itemCode}
+          </if>
+          AND T.OWNER_CODE = #{ownerCode}
+    </select>
+    <select id="getGoodsInfo" resultType="com.platform.modules.wms.entity.StoreInventoryInfoEntity">
+        SELECT *
+        FROM STORE_INVENTORY_INFO T
+        WHERE T.DEL_FLAG = '0'
+        AND T.STORE_CODE = #{storeCode}
+        <if test="itemId != null and itemId.trim() != ''">
+            AND T.ITEM_ID  = #{itemId}
+        </if>
+        AND T.OWNER_CODE = #{ownerCode}
+    </select>
+    <select id="findStoreList" resultType="java.util.Map">
+        SELECT DISTINCT
+        I.ID id,
+        I.ITEM_ID itemId,
+        G.GOODS_NAME goodsName,
+        G.GOODS_MODEL goodsModel,
+        G.SPECIFICATION specification,
+        G.GOODS_PACKING goodsPacking,
+        G.GOODS_MATERIAL goodsMaterial,
+        G.PRICE price,
+        I.ITEM_QUANTITY itemQuantity,
+        G.PRICE * I.ITEM_QUANTITY totalPrice,
+        I.STORE_CODE storeCode,
+        I.OWNER_CODE ownerCode
+        FROM
+        STORE_INVENTORY_INFO I
+        LEFT JOIN STORE_INVENTORY_GOODS G
+        ON ( I.ITEM_ID = G.GOODS_ID AND I.STORE_CODE = G.STORE_CODE AND I.OWNER_CODE = G.CUSTOMER_CODE )
+        WHERE 1=1
+        <if test="params.goodsName != null and params.goodsName.trim() != ''">
+            AND G.GOODS_NAME like '%${params.goodsName}%'
+        </if>
+        <if test="params.storeCode != null and params.storeCode.trim() != ''">
+            AND I.STORE_CODE like '%${params.storeCode}%'
+        </if>
+        <if test="params.ownerCode != null and params.ownerCode.trim() != ''">
+            AND I.OWNER_CODE like '%${params.ownerCode}%'
+        </if>
+    </select>
+    <select id="findInStoreList" resultType="java.util.Map">
+        SELECT DISTINCT
+            S.GOODS_ID goodsId,
+            S.GOODS_NAME goodsName,
+            S.STORE_CODE storeCode,
+            S.ORDER_ITEM orderItem,
+            S.PRICE price,
+            I.ORDER_NO orderNo,
+            I.INVOICE_NO invoiceNo,
+            O.WAY_BILL_NO wayBillNo,
+            S.GOODS_NUM goodsNum,
+            S.CUSTOMER_CODE customerCode
+        FROM
+            STORE_INVENTORY_GOODS S
+            LEFT JOIN ORDER_HEADER_INFO I ON S.ORDER_ITEM = I.ORDER_ITEM
+            LEFT JOIN ORDER_CAR_RELATION O ON S.ORDER_ITEM = O.ORDER_ITEM
+        WHERE
+            S.ORDER_TYPE = 'R'
+        <if test="params.storeCode != null and params.storeCode.trim() != ''">
+            AND S.STORE_CODE like '%${params.storeCode}%'
+        </if>
+        <if test="params.ownerCode != null and params.ownerCode.trim() != ''">
+            AND S.CUSTOMER_CODE like '%${params.ownerCode}%'
+        </if>
+        <if test="params.itemName != null and params.itemName.trim() != ''">
+            AND S.GOODS_NAME like '%${params.itemName}%'
+        </if>
+        ORDER BY
+	        S.CREATED_TIME DESC
+    </select>
+    <select id="findOutStoreList" resultType="java.util.Map">
+        SELECT DISTINCT
+            S.GOODS_ID goodsId,
+            S.GOODS_NAME goodsName,
+            S.STORE_CODE storeCode,
+            S.ORDER_ITEM orderItem,
+            S.PRICE price,
+            I.ORDER_NO orderNo,
+            I.INVOICE_NO invoiceNo,
+            O.WAY_BILL_NO wayBillNo,
+            S.GOODS_NUM goodsNum,
+            S.CUSTOMER_CODE customerCode
+        FROM
+            STORE_INVENTORY_GOODS S
+            LEFT JOIN ORDER_HEADER_INFO I ON S.ORDER_ITEM = I.ORDER_ITEM
+            LEFT JOIN ORDER_CAR_RELATION O ON S.ORDER_ITEM = O.ORDER_ITEM
+        WHERE
+            S.ORDER_TYPE = 'I'
+        <if test="params.storeCode != null and params.storeCode.trim() != ''">
+            AND S.STORE_CODE like '%${params.storeCode}%'
+        </if>
+        <if test="params.ownerCode != null and params.ownerCode.trim() != ''">
+            AND S.CUSTOMER_CODE like '%${params.ownerCode}%'
+        </if>
+        <if test="params.itemName != null and params.itemName.trim() != ''">
+            AND S.GOODS_NAME like '%${params.itemName}%'
+        </if>
+        ORDER BY
+	        S.CREATED_TIME DESC
+    </select>
+
+    <select id="statisticsStore" resultType="com.platform.modules.wms.entity.StoreInventoryInfoEntity">
+        SELECT
+            S.STORE_CODE,
+            S.STORE_NAME,
+            S.ITEM_ID,
+            S.ITEM_NAME,
+            S.ITEM_QUANTITY
+        FROM
+            STORE_INVENTORY_INFO S
+        WHERE 1=1 AND S.DEL_FLAG = '0'
+        <if test="params.ownerCode != null and params.ownerCode.trim() != ''">
+            AND S.OWNER_CODE = #{params.ownerCode}
+        </if>
+        <if test="params.storeCode != null and params.storeCode.trim() != ''">
+            AND S.STORE_CODE = #{params.storeCode}
+        </if>
+    </select>
+</mapper>

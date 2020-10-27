@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.platform.modules.price.dao.PriceDetailDao">
+
+    <sql id="selectSql">
+        SELECT
+        T.ID,
+        T.NAME,
+        T.CODE,
+        T.TYPE,
+        T.UNIT,
+        T.PRICE,
+        T.VAT_RATE,
+        T.COST_PRICE,
+        T.TOTAL_PRICE,
+        T.PRICE_INFO_ID,
+        T.SUPPLY_CODE,
+        T.START_AREA,
+        T.END_AREA,
+        T.IS_TRANSPORT,
+        T.STATUS,
+        T.CREATE_BY,
+        T.CREATE_TIME,
+        T.UPDATE_BY,
+        T.UPDATE_TIME
+        FROM PRICE_DETAIL T
+        WHERE 1=1
+        <if test="params.name != null and params.name.trim() != ''">
+            AND T.NAME LIKE '%${params.name}%'
+        </if>
+        <if test="params.priceInfoId != null and params.priceInfoId.trim() != ''">
+            AND T.PRICE_INFO_ID LIKE '%${params.priceInfoId}%'
+        </if>
+    </sql>
+
+    <select id="selectPriceDetailPage" resultType="com.platform.modules.price.entity.PriceDetailEntity">
+        <include refid="selectSql"/>
+    </select>
+
+    <select id="queryAll" resultType="com.platform.modules.price.entity.PriceDetailEntity">
+        <include refid="selectSql"/>
+    </select>
+    <select id="get" resultType="com.platform.modules.price.entity.PriceDetailEntity">
+        SELECT *
+        FROM PRICE_DETAIL T
+        WHERE T.CODE = #{params.code}
+        AND T.TYPE = #{params.type}
+        AND T.PRICE_INFO_ID IN (
+            SELECT I.ID
+              FROM PRICE_INFO I
+            WHERE I.COMPANY_CODE = #{params.supplyCode}
+              AND I.TYPE = '1'
+              AND I.STATUS = '0'
+        )
+        LIMIT 1
+    </select>
+    <select id="findTypeList" resultType="com.platform.modules.price.entity.PriceDetailEntity">
+        SELECT *
+        FROM PRICE_DETAIL T
+        WHERE T.STATUS = '0'
+        AND T.PRICE_INFO_ID IN (
+            SELECT I.ID
+              FROM PRICE_INFO I
+            WHERE I.COMPANY_CODE = #{companyCode}
+              AND I.TYPE = '0'
+              AND I.STATUS = '0'
+        )
+        AND T.SUPPLY_CODE IN
+        <foreach collection="list" index="index" item="code" separator="," open="(" close=")">
+            #{code}
+        </foreach>
+
+    </select>
+    <select id="findList" resultType="com.platform.modules.price.entity.PriceDetailEntity">
+        SELECT *
+        FROM PRICE_DETAIL T
+        WHERE T.CODE = #{params.code}
+        AND T.IS_TRANSPORT = '1'
+        AND T.TYPE = #{params.type}
+        AND T.PRICE_INFO_ID IN (
+            SELECT I.ID
+              FROM PRICE_INFO I
+            WHERE I.COMPANY_CODE = #{params.supplyCode}
+              AND I.TYPE = '1'
+              AND I.STATUS = '0'
+        )
+    </select>
+</mapper>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.platform.modules.message.dao.MessageOrderDetailGoodInfoDao">
+
+    <sql id="selectSql">
+        SELECT
+        T.DEL_FLAG,
+        T.CREATED_BY,
+        T.CREATED_TIME,
+        T.UPDATED_BY,
+        T.UPDATED_TIME,
+        T.ROW_ID,
+        T.ORDER_TIME,
+        T.GOOD_NAME,
+        T.GOOD_CODE,
+        T.GOOD_SPEC,
+        T.BAR_CODE,
+        T.GOODS_NUM,
+        T.GOOD_PRICE,
+        T.CURRENCY_TPYE,
+        T.AMOUNT
+        FROM MESSAGE_ORDER_DETAIL_GOOD_INFO T
+        WHERE T.DEL_FLAG = '0'
+        <if test="params.name != null and params.name.trim() != ''">
+            AND T.NAME LIKE '%${params.name}%'
+        </if>
+    </sql>
+
+    <select id="selectMessageOrderDetailGoodInfoPage" resultType="com.platform.modules.message.entity.MessageOrderDetailGoodInfoEntity">
+        <include refid="selectSql"/>
+    </select>
+
+    <select id="queryAll" resultType="com.platform.modules.message.entity.MessageOrderDetailGoodInfoEntity">
+        <include refid="selectSql"/>
+    </select>
+</mapper>

@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.platform.modules.order.dao.OrderStatusFlowDao">
+    <resultMap id="resultMap" type="com.platform.modules.order.entity.OrderStatusFlowEntity">
+        <id property="id" column="ID"></id>
+        <result property="orderItem" column="ORDER_ITEM"/>
+        <result property="orderStatus" column="ORDER_STATUS"/>
+        <result property="statusCode" column="STATUS_CODE"/>
+        <result property="statusDate" column="STATUS_DATE"/>
+        <result property="remarks" column="REMARKS"/>
+        <result property="createdBy" column="CREATED_BY"/>
+        <result property="createdTime" column="CREATED_TIME"/>
+        <result property="updatedBy" column="UPDATED_BY"/>
+        <result property="updatedTime" column="UPDATED_TIME"/>
+        <result property="delFlag" column="DEL_FLAG"/>
+        <collection property="fileList" ofType="com.platform.modules.sys.entity.SysFileAttachmentEntity">
+            <id property="id" column="FILE_ID"></id>
+            <result property="fileId" column="FILE_ID"/>
+            <result property="fileName" column="FILE_NAME"/>
+            <result property="fileUrl" column="FILE_URL"/>
+            <result property="fileSuffix" column="FILE_SUFFIX"/>
+            <result property="fileSize" column="FILE_SIZE"/>
+        </collection>
+    </resultMap>
+
+    <sql id="selectSql">
+        SELECT
+        T.DEL_FLAG,
+        T.CREATED_BY,
+        T.CREATED_TIME,
+        T.UPDATED_BY,
+        T.UPDATED_TIME,
+        T.ID,
+        T.ORDER_ITEM,
+        T.ORDER_STATUS,
+        T.STATUS_CODE,
+        T.STATUS_DATE,
+        T.REMARKS
+        FROM ORDER_STATUS_FLOW T
+        WHERE 1=1
+        <if test="params.name != null and params.name.trim() != ''">
+            AND T.NAME LIKE '%${params.name}%'
+        </if>
+        <if test="params.orderItem != null and params.orderItem.trim() != ''">
+            AND T.order_item = #{params.orderItem}
+        </if>
+        <if test="params.statusCode != null and params.statusCode.trim() != ''">
+            AND T.status_code = #{params.statusCode}
+        </if>
+    </sql>
+
+    <select id="selectOrderStatusFlowPage" resultType="com.platform.modules.order.entity.OrderStatusFlowEntity">
+        <include refid="selectSql"/>
+    </select>
+
+    <select id="queryAll" resultMap="resultMap">
+        SELECT
+        T.ID,
+        T.ORDER_ITEM,
+        T.ORDER_STATUS,
+        T.STATUS_CODE,
+        T.STATUS_DATE,
+        T.REMARKS,
+        S.ID FILE_ID,
+        S.FILE_NAME,
+        S.FILE_URL,
+        S.FILE_SUFFIX,
+        S.FILE_SIZE
+        FROM ORDER_STATUS_FLOW T
+        LEFT JOIN SYS_FILE_ATTACHMENT S
+        ON T.ID = S.BELONG_TO
+        WHERE T.DEL_FLAG = '0'
+        <if test="params.orderItem != null and params.orderItem.trim() != ''">
+            AND T.ORDER_ITEM = #{params.orderItem}
+        </if>
+        <if test="params.statusCode != null and params.statusCode.trim() != ''">
+            AND T.STATUS_CODE = #{params.statusCode}
+        </if>
+        ORDER BY T.STATUS_CODE
+    </select>
+</mapper>

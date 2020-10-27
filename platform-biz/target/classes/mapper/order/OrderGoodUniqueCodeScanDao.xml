@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.platform.modules.order.dao.OrderGoodUniqueCodeScanDao">
+
+    <sql id="selectSql">
+        SELECT
+        T.ID,
+        T.ORDER_ITEM,
+        T.OPERATE_TYPE,
+        T.GOOD_NAME,
+        T.GOOD_CODE,
+        T.UNIQUE_CODE,
+        T.OPERATOR_NAME,
+        T.OPERATOR_CODE,
+        T.OPERATOR_DATE,
+        T.OPERATE_RESULT,
+        T.DEL_FLAG,
+        T.CREATED_BY,
+        T.CREATED_TIME,
+        T.UPDATED_BY,
+        T.UPDATED_TIME,
+        T.STORE_HOUSE,
+        T.STORE_CODE
+        FROM ORDER_GOOD_UNIQUE_CODE_SCAN T
+        WHERE 1=1
+        <if test="params.name != null and params.name.trim() != ''">
+            AND T.NAME LIKE '%${params.name}%'
+        </if>
+    </sql>
+
+    <select id="selectOrderGoodUniqueCodeScanPage" resultType="com.platform.modules.order.entity.OrderGoodUniqueCodeScanEntity">
+        <include refid="selectSql"/>
+    </select>
+
+    <select id="queryAll" resultType="com.platform.modules.order.entity.OrderGoodUniqueCodeScanEntity">
+        <include refid="selectSql"/>
+    </select>
+    <select id="listByOrderItem" resultType="java.util.Map">
+         SELECT
+        I.ORDER_NO AS orderNo,
+        T.GOOD_NAME AS goodsName,
+        T.GOOD_CODE AS goodsCode,
+        T.UNIQUE_CODE AS uniqueCode,
+        T.OPERATOR_DATE AS operateDate,
+        T.OPERATE_RESULT AS operateResult,
+        B.SPECIFICATION AS specification
+        FROM
+         ORDER_GOOD_UNIQUE_CODE_SCAN T,
+         BASE_GOODS_INFO B,
+         ORDER_HEADER_INFO I
+        WHERE 1=1
+        AND T.GOOD_CODE=B.GOODS_CODE
+        AND T.ORDER_ITEM=I.ORDER_ITEM
+        AND T.ORDER_ITEM=#{orderItem}
+        AND T.OPERATE_TYPE=#{operateType}
+    </select>
+
+    <select id="getInfo" resultType="com.platform.modules.order.entity.OrderGoodUniqueCodeScanEntity">
+         SELECT *
+            FROM ORDER_GOOD_UNIQUE_CODE_SCAN T
+            WHERE T.GOOD_CODE=#{goodsCode}
+            AND  T.STORE_CODE=#{storeCode}
+            AND  T.ORDER_ITEM IN
+            <foreach collection="orderItems" item="orderItem" open="(" close=")" separator=",">
+                #{orderItem}
+            </foreach>
+            AND T.OPERATE_TYPE = '2'
+            AND T.UNIQUE_CODE NOT IN (
+                SELECT A.UNIQUE_CODE FROM ORDER_GOOD_UNIQUE_CODE_SCAN A
+                 WHERE A.GOOD_CODE=#{goodsCode}
+                   AND A.STORE_CODE=#{storeCode}
+                   AND A.ORDER_ITEM IN
+                    <foreach collection="orderItems" item="orderItem" open="(" close=")" separator=",">
+                        #{orderItem}
+                    </foreach>
+                   AND A.OPERATE_TYPE = '3'
+            )
+    </select>
+    <select id="findList" resultType="java.util.Map">
+        SELECT
+            T.GOOD_CODE goodsCode,
+            IFNULL(COUNT(*), 0) num
+        FROM
+            ORDER_GOOD_UNIQUE_CODE_SCAN T
+        WHERE
+            DATE_FORMAT( T.OPERATOR_DATE, #{pattern} ) = #{time}
+            AND T.OPERATE_TYPE = '2'
+            AND T.IS_IN_STORE = '1'
+        GROUP BY
+            T.GOOD_CODE
+    </select>
+
+    <update id="updateBarCode">
+        UPDATE ORDER_GOOD_UNIQUE_CODE_SCAN
+        SET
+            UPDATED_BY = #{orderItem}
+            IS_IN_STORE = '0',
+            UPDATED_TIME = now()
+        WHERE OPERATE_TYPE = '2'
+            AND IS_IN_STORE = '1'
+            AND UNIQUE_CODE = #{barCode}
+        <if test="goodsCode != null and goodsCode.trim() != ''">
+            AND GOOD_CODE = #{goodsCode}
+        </if>
+    </update>
+</mapper>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.platform.modules.bill.dao.BillItemDao">
+
+    <sql id="selectSql">
+        SELECT
+        T.ID,
+        T.NAME,
+        T.CODE,
+        T.TYPE,
+        T.UNIT,
+        T.PRICE,
+        T.VAT_RATE,
+        T.TOTAL_PRICE,
+        T.IS_CONFIRM,
+        T.PROFIT,
+        T.COST_PRICE,
+        T.SUPPLY_CODE,
+        T.INFO_ID,
+        T.START_AREA,
+        T.END_AREA,
+        T.IS_TRANSPORT,
+        T.STATUS,
+        T.CREATE_BY,
+        T.CREATE_TIME,
+        T.UPDATE_BY,
+        T.UPDATE_TIME
+        FROM BILL_ITEM T
+        WHERE 1=1
+        <if test="params.name != null and params.name.trim() != ''">
+            AND T.NAME LIKE '%${params.name}%'
+        </if>
+        <if test="params.infoId != null and params.infoId.trim() != ''">
+            AND T.INFO_ID = #{params.infoId}
+        </if>
+    </sql>
+
+    <select id="selectStatementItemPage" resultType="com.platform.modules.bill.entity.BillItemEntity">
+        <include refid="selectSql"/>
+    </select>
+
+    <select id="queryAll" resultType="com.platform.modules.bill.entity.BillItemEntity">
+        <include refid="selectSql"/>
+    </select>
+</mapper>

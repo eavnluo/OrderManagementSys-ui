@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.platform.modules.wms.dao.InStorageFlowDao">
+
+    <sql id="selectSql">
+        SELECT
+        T.BIZ_CODE,
+        T.INBOUND_TYPE_CODE,
+        T.LOGISTICS_NO,
+        T.ORDER_ITEM,
+        T.CUSTOMER_ORDER_NO,
+        T.LOGISTICS_TYPE,
+        T.EXPECT_ARRIVE_DATE,
+        T.WAREHOUSE_CODE,
+        T.WAREHOUSE_NAME,
+        T.SUPPLIER_NAME,
+        T.TOTAL_PRICE,
+        T.THIRD_PARTY_ID,
+        T.OPERATOR_NAME,
+        T.ORDER_MAKER,
+        T.UPDATE_STATUS_DATE,
+        T.STATUS_CODE,
+        T.STATUS_NAME,
+        T.CUSTOM1,
+        T.CUSTOM2,
+        T.CUSTOM3,
+        T.REMARK,
+        T.CREATED_BY,
+        T.CREATED_TIME,
+        T.UPDATED_BY,
+        T.UPDATED_TIME,
+        T.DEL_FLAG
+        FROM store_in_flow_plan T
+        WHERE T.DEL_FLAG = '0'
+        <if test="params.logisticsNo != null and params.logisticsNo.trim() != ''">
+            AND T.LOGISTICS_NO LIKE '%${params.logisticsNo}%'
+        </if>
+    </sql>
+
+    <select id="selectInStorageFlowPage" resultType="com.platform.modules.wms.entity.InStorageFlowEntity">
+        <include refid="selectSql"/>
+    </select>
+
+    <select id="queryAll" resultType="com.platform.modules.wms.entity.InStorageFlowEntity">
+        <include refid="selectSql"/>
+    </select>
+
+    <update id="updatByOrderNo" >
+        UPDATE store_in_flow_plan t
+        SET t.STATUS_CODE = #{statusCode},
+            t.STATUS_NAME = #{statusName},
+            t.WMS_ORDER_NO = #{data},
+            t.UPDATE_STATUS_DATE = sysdate()
+        WHERE
+            t.CUSTOMER_ORDER_NO = #{customerOrderNo}
+    </update>
+</mapper>

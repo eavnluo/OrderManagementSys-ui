@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.platform.modules.website.dao.WebsiteNewsDao">
+
+    <sql id="selectSql">
+        SELECT
+        T.ID,
+        T.NEWS_CATEGORY,
+        T.NEWS_TITLE,
+        T.NEWS_DESC,
+        T.NEWS_CONTENT,
+        T.PUBLISH_TIME,
+        T.CREATED_BY,
+        T.CREATED_TIME,
+        T.UPDATED_BY,
+        T.UPDATED_TIME,
+        T.DEL_FLAG
+        FROM WEBSITE_NEWS T
+        WHERE 1=1 AND T.DEL_FLAG = '0'
+        <if test="params.name != null and params.name.trim() != ''">
+            AND T.NAME LIKE '%${params.name}%'
+        </if>
+    </sql>
+
+    <select id="selectWebsiteNewsPage" resultType="com.platform.modules.website.entity.WebsiteNewsEntity">
+        SELECT
+        T.ID,
+        T.NEWS_CATEGORY,
+        T.NEWS_TITLE,
+        T.NEWS_DESC,
+        T.NEWS_CONTENT,
+        T.PUBLISH_TIME,
+        T.CREATED_TIME,
+        T.UPDATED_TIME,
+        S.FILE_NAME newsImage,
+        S.FILE_URL
+        FROM WEBSITE_NEWS T
+        LEFT JOIN SYS_FILE_ATTACHMENT S ON T.ID = S.BELONG_TO
+        WHERE 1=1 AND T.DEL_FLAG = '0'
+        <if test="params.newsTitle != null and params.newsTitle.trim() != ''">
+            AND T.NEWS_TITLE LIKE '%${params.newsTitle}%'
+        </if>
+        <if test="params.newsCategory != null and params.newsCategory.trim() != ''">
+            AND T.NEWS_CATEGORY LIKE #{params.newsCategory}
+        </if>
+    </select>
+
+    <select id="queryAll" resultType="com.platform.modules.website.entity.WebsiteNewsEntity">
+        SELECT
+        T.ID,
+        T.NEWS_CATEGORY,
+        T.NEWS_TITLE,
+        T.NEWS_DESC,
+        T.NEWS_CONTENT,
+        T.PUBLISH_TIME,
+        T.CREATED_TIME,
+        T.UPDATED_TIME,
+        S.FILE_NAME newsImage,
+        S.FILE_URL
+        FROM WEBSITE_NEWS T
+        LEFT JOIN SYS_FILE_ATTACHMENT S ON T.ID = S.BELONG_TO
+        WHERE 1=1 AND T.DEL_FLAG = '0'
+        <if test="params.newsTitle != null and params.newsTitle.trim() != ''">
+            AND T.NEWS_TITLE LIKE '%${params.newsTitle}%'
+        </if>
+        <if test="params.newsCategory != null and params.newsCategory.trim() != ''">
+            AND T.NEWS_CATEGORY = #{params.newsCategory}
+        </if>
+    </select>
+
+    <select id="getNewsInfo" resultType="com.platform.modules.website.entity.WebsiteNewsEntity">
+        SELECT
+        T.ID,
+        T.NEWS_CATEGORY,
+        T.NEWS_TITLE,
+        T.NEWS_DESC,
+        T.NEWS_CONTENT,
+        T.PUBLISH_TIME,
+        T.CREATED_TIME,
+        T.UPDATED_TIME,
+        S.FILE_NAME newsImage,
+        S.FILE_URL
+        FROM WEBSITE_NEWS T
+        LEFT JOIN SYS_FILE_ATTACHMENT S ON T.ID = S.BELONG_TO
+        WHERE 1=1
+          AND T.DEL_FLAG = '0'
+          AND T.ID = #{id}
+    </select>
+</mapper>

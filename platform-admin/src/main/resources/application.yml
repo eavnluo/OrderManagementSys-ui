@@ -1,0 +1,35 @@
+# Tomcat
+server:
+  tomcat:
+    uri-encoding: UTF-8
+    max-threads: 1024
+    min-spare-threads: 30
+    accept-count: 5000
+  port: 8888
+  connection-timeout: 1000ms
+  servlet:
+    context-path: /platform-admin
+
+spring:
+  main:
+    allow-bean-definition-overriding: true
+  # 环境 dev|prod
+  profiles:
+    active: dev
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
+      enabled: true
+  mvc:
+    throw-exception-if-no-handler-found: true
+    static-path-pattern: /static/**
+  resources:
+    add-mappings: false
+  # 系统邮件配置一般不会有改动，所以采用硬编码
+  mail:
+    host: smtp.163.com
+    username: panbb_00@163.com
+    password: UHBONVOQZVQFGHBX
+    default-encoding: UTF-8
+    protocol: smtp

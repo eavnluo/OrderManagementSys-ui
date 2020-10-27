@@ -1,0 +1,720 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.platform.modules.order.dao.OrderHeaderInfoDao">
+
+    <sql id="selectSql">
+        SELECT
+        T.DEL_FLAG,
+        T.CREATED_BY,
+        T.CREATED_TIME,
+        T.UPDATED_BY,
+        T.UPDATED_TIME,
+        T.ID,
+        T.ORDER_NO,
+        T.ORDER_ITEM,
+        T.ORDER_DATE,
+        T.ORDER_TYPE,
+        T.STORE_HOUSE_CODE,
+        T.STORE_HOUSE_NAME,
+        T.SUPPLY_CODE,
+        T.SUPPLY_NAME,
+        T.STATUS,
+        T.STATUS_UPDTE,
+        T.COMPLATE_DATE,
+        T.STATUS_NAME,
+        T.BUYER_CODE,
+        T.BUYER_NAME,
+        T.SELLER_CODE,
+        T.SELLER_NAME,
+        T.START_POINT,
+        T.END_POINT,
+        T.INVOICE_NO,
+        T.DYNAMIC,
+        T.CAR_SUPPLY_ID,
+        T.STORAGE_SUPPLY_ID,
+        T.PIECE_NUMBER,
+        T.WEIGHT,
+        T.SEND_GOODS_PEOPLE,
+        T.SEND_GOODS_PEOPLE_ID,
+        T.RECEIVE_GOODS_PEOPLE,
+        T.RECEIVE_GOODS_PEOPLE_ID,
+        T.CUSTOMER_ID,
+        T.CAR_SUPPLY_STATUS,
+        T.STORAGE_SUPPLY_STATUS,
+        T.OUT_IN_ODD_NUM,
+        T.EXPECT_RECEIVE_DATE,
+        T.SHIPPING_ADDRESS,
+        T.RECEIVING_ADDRESS
+        FROM ORDER_HEADER_INFO T
+        WHERE 1=1
+        <if test="params.orderNo != null and params.orderNo.trim() != ''">
+            AND T.order_no = #{params.orderNo}
+        </if>
+        <if test="params.supplyName != null and params.supplyName.trim() != ''">
+            AND T.supply_name like '%${params.supplyName}%'
+        </if>
+        <if test="params.orderBeginDate != null and params.orderBeginDate.trim() != ''">
+            AND T.order_date between #{params.orderBeginDate} and #{params.orderEndDate}
+        </if>
+        <if test="params.status != null and params.status.trim() != ''">
+            AND T.status = #{params.status}
+        </if>
+        <if test="params.orderItem != null and params.orderItem.trim() != ''">
+            AND T.order_item = #{params.orderItem}
+        </if>
+        <if test="params.orderType != null and params.orderType.trim() != ''">
+            AND T.order_type = #{params.orderType}
+        </if>
+        <if test="params.sellerCode != null and params.sellerCode.trim() != ''">
+            AND T.seller_code = #{params.sellerCode}
+        </if>
+        <if test="params.buyerCode != null and params.buyerCode.trim() != ''">
+            AND T.buyer_code = #{params.buyerCode}
+        </if>
+        <if test="params.customerId != null and params.customerId.trim() != ''">
+            AND T.CUSTOMER_ID = #{params.customerId}
+        </if>
+        <if test="params.carSupplyId != null and params.carSupplyId.trim() != ''">
+            AND T.CAR_SUPPLY_ID = #{params.carSupplyId}
+        </if>
+        <if test="params.storageSupplyId != null and params.storageSupplyId.trim() != ''">
+            AND T.STORAGE_SUPPLY_ID = #{params.storageSupplyId}
+        </if>
+    </sql>
+    <!-- 更定订单的状态编码 -->
+    <update id="updatByOrderNo">
+        UPDATE ORDER_HEADER_INFO t
+        SET t.STATUS = #{statusCode},
+            t.STATUS_NAME = #{statusName},
+            t.STATUS_UPDTE = sysdate()
+        WHERE
+            t.ORDER_NO = #{customerOrderNo}
+    </update>
+
+    <select id="selectOrderHeaderInfoPage" resultType="com.platform.modules.order.entity.OrderHeaderInfoEntity">
+        SELECT
+        T.ID,
+        T.ORDER_NO,
+        T.ORDER_ITEM,
+        T.ORDER_DATE,
+        T.ORDER_TYPE,
+        T.STORE_HOUSE_CODE,
+        T.STORE_HOUSE_NAME,
+        T.SUPPLY_CODE,
+        T.SUPPLY_NAME,
+        T.STATUS,
+        T.STATUS_UPDTE,
+        T.COMPLATE_DATE,
+        T.STATUS_NAME,
+        T.BUYER_CODE,
+        T.BUYER_NAME,
+        T.SELLER_CODE,
+        T.SELLER_NAME,
+        T.START_POINT,
+        T.END_POINT,
+        T.INVOICE_NO,
+        T.DYNAMIC,
+        T.CAR_SUPPLY_ID,
+        T.STORAGE_SUPPLY_ID,
+        T.PIECE_NUMBER,
+        T.WEIGHT,
+        T.SEND_GOODS_PEOPLE,
+        T.RECEIVE_GOODS_PEOPLE,
+        T.CUSTOMER_ID,
+        T.CAR_SUPPLY_STATUS,
+        T.STORAGE_SUPPLY_STATUS,
+        B.CUSTOMER_CODE,
+        T.OUT_IN_ODD_NUM,
+        T.EXPECT_RECEIVE_DATE,
+        T.SHIPPING_ADDRESS,
+        T.RECEIVING_ADDRESS
+        FROM ORDER_HEADER_INFO T
+        JOIN REGISTER_USER R ON T.CUSTOMER_ID = R.ID
+        JOIN BASE_CUSTOMER_INFO B ON B.REGISTER_USER_ID = R.ID
+        WHERE 1=1 AND T.DEL_FLAG = '0' AND B.DEL_FLAG = '0'
+        /*订单号*/
+        <if test="params.orderNo != null and params.orderNo.trim() != ''">
+            AND T.order_no = #{params.orderNo}
+        </if>
+        /*时间段*/
+        <if test="params.orderBeginDate != null and params.orderBeginDate.trim() != ''">
+            AND T.order_date between #{params.orderBeginDate} and #{params.orderEndDate}
+        </if>
+        /*订单状态*/
+        <if test="params.status != null and params.status.trim() != ''">
+            AND T.status = #{params.status}
+        </if>
+        /*工作单号*/
+        <if test="params.orderItem != null and params.orderItem.trim() != ''">
+            AND T.order_item = #{params.orderItem}
+        </if>
+        /*订单类型*/
+        <if test="params.orderType != null and params.orderType.trim() != ''">
+            AND T.order_type = #{params.orderType}
+        </if>
+        /*注册用户客户ID*/
+        <if test="params.customerId != null and params.customerId.trim() != ''">
+            AND T.CUSTOMER_ID = #{params.customerId}
+        </if>
+        /*卡车供应商ID*/
+        <if test="params.carSupplyId != null and params.carSupplyId.trim() != ''">
+            AND T.CAR_SUPPLY_ID = #{params.carSupplyId}
+        </if>
+        /*仓储供应商ID*/
+        <if test="params.storageSupplyId != null and params.storageSupplyId.trim() != ''">
+            AND T.STORAGE_SUPPLY_ID = #{params.storageSupplyId}
+        </if>
+        /*发票号*/
+        <if test="params.invoiceNo != null and params.invoiceNo.trim() != ''">
+            AND T.INVOICE_NO = #{params.invoiceNo}
+        </if>
+        /*客户代码*/
+        <if test="params.customerCode != null and params.customerCode.trim() != ''">
+            AND B.CUSTOMER_CODE = #{params.customerCode}
+        </if>
+        /*供应商ID*/
+        <if test="params.supplyId != null and params.supplyId.trim() != ''">
+            AND (T.CAR_SUPPLY_ID = #{params.supplyId} OR T.STORAGE_SUPPLY_ID = #{params.supplyId})
+        </if>
+    </select>
+
+    <select id="queryAll" resultType="com.platform.modules.order.entity.OrderHeaderInfoEntity">
+        SELECT
+        T.ID,
+        T.ORDER_NO,
+        T.ORDER_ITEM,
+        T.ORDER_DATE,
+        T.ORDER_TYPE,
+        T.STORE_HOUSE_CODE,
+        T.STORE_HOUSE_NAME,
+        T.SUPPLY_CODE,
+        T.SUPPLY_NAME,
+        T.STATUS,
+        T.STATUS_UPDTE,
+        T.COMPLATE_DATE,
+        T.STATUS_NAME,
+        T.BUYER_CODE,
+        T.BUYER_NAME,
+        T.SELLER_CODE,
+        T.SELLER_NAME,
+        T.START_POINT,
+        T.END_POINT,
+        T.INVOICE_NO,
+        T.DYNAMIC,
+        T.CAR_SUPPLY_ID,
+        T.STORAGE_SUPPLY_ID,
+        T.PIECE_NUMBER,
+        T.WEIGHT,
+        T.SEND_GOODS_PEOPLE,
+        T.RECEIVE_GOODS_PEOPLE,
+        T.CUSTOMER_ID,
+        T.CAR_SUPPLY_STATUS,
+        T.STORAGE_SUPPLY_STATUS,
+        B.CUSTOMER_CODE,
+        T.OUT_IN_ODD_NUM,
+        T.EXPECT_RECEIVE_DATE,
+        T.SHIPPING_ADDRESS,
+        T.RECEIVING_ADDRESS
+        FROM ORDER_HEADER_INFO T
+        JOIN REGISTER_USER R ON T.CUSTOMER_ID = R.ID
+        JOIN BASE_CUSTOMER_INFO B ON B.REGISTER_USER_ID = R.ID
+        WHERE 1=1 AND T.DEL_FLAG = '0' AND B.DEL_FLAG = '0'
+        /*订单号*/
+        <if test="params.orderNo != null and params.orderNo.trim() != ''">
+            AND T.order_no = #{params.orderNo}
+        </if>
+        /*时间段*/
+        <if test="params.orderBeginDate != null and params.orderBeginDate.trim() != ''">
+            AND T.order_date between #{params.orderBeginDate} and #{params.orderEndDate}
+        </if>
+        /*订单状态*/
+        <if test="params.status != null and params.status.trim() != ''">
+            AND T.status = #{params.status}
+        </if>
+        /*工作单号*/
+        <if test="params.orderItem != null and params.orderItem.trim() != ''">
+            AND T.order_item = #{params.orderItem}
+        </if>
+        /*订单类型*/
+        <if test="params.orderType != null and params.orderType.trim() != ''">
+            AND T.order_type = #{params.orderType}
+        </if>
+        /*注册用户客户ID*/
+        <if test="params.customerId != null and params.customerId.trim() != ''">
+            AND T.CUSTOMER_ID = #{params.customerId}
+        </if>
+        /*客户代码*/
+        <if test="params.customerCode != null and params.customerCode.trim() != ''">
+            AND B.CUSTOMER_CODE = #{params.customerCode}
+        </if>
+    </select>
+
+    <select id="queryOrder" resultType="java.util.Map">
+        SELECT
+            order_type orderType,
+            dynamic
+        FROM
+            order_header_info
+        WHERE
+            order_item = #{orderItem}
+    </select>
+
+
+    <select id="getByOrderNo" resultType="java.lang.String">
+        SELECT  T.ORDER_NO
+        FROM ORDER_HEADER_INFO T
+        WHERE 1=1 AND T.ORDER_ITEM=#{orderItem}
+    </select>
+
+    <select id="findNumberForChart" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM order_header_info i
+        WHERE 1=1
+        <if test="isYesterday">
+            AND DATE_FORMAT(ORDER_DATE, '%Y %m %d') = DATE_FORMAT(DATE_SUB(curdate(),interval 1 day),'%Y %m %d')
+        </if>
+        <if test="orderInfo.orderType != null and orderInfo.orderType.trim() != ''">
+            AND i.ORDER_TYPE = #{orderInfo.orderType}
+        </if>
+        <if test="orderInfo.status != null and orderInfo.status.trim() != ''">
+            AND i.STATUS = #{orderInfo.status}
+        </if>
+    </select>
+    <select id="findListForChart" resultType="java.util.Map">
+        SELECT chart.time, COUNT(*) as num
+            FROM (
+                SELECT ID, DATE_FORMAT( ORDER_DATE, '%Y-%m-%d' ) AS time FROM order_header_info i
+                WHERE 1=1
+                    AND DATE_FORMAT(ORDER_DATE, '%Y %m') = DATE_FORMAT(DATE_SUB(curdate(), INTERVAL 0 MONTH),'%Y %m')
+                    <if test="orderInfo.orderType != null and orderInfo.orderType.trim() != ''">
+                        AND i.ORDER_TYPE = #{orderInfo.orderType}
+                    </if>
+                    <if test="orderInfo.status != null and orderInfo.status.trim() != ''">
+                        AND i.STATUS = #{orderInfo.status}
+                    </if>
+            ) AS chart
+        GROUP BY chart.time
+    </select>
+    <select id="findListForChartByMonth" resultType="java.util.Map">
+        SELECT chart.time, COUNT(*) as num
+            FROM (
+                SELECT ID, DATE_FORMAT( ORDER_DATE, '%Y-%m' ) AS time FROM order_header_info i
+                WHERE 1=1
+                    AND DATE_FORMAT(ORDER_DATE, '%Y') = DATE_FORMAT(DATE_SUB(curdate(), INTERVAL 0 MONTH),'%Y')
+                    <if test="orderInfo.orderType != null and orderInfo.orderType.trim() != ''">
+                        AND i.ORDER_TYPE = #{orderInfo.orderType}
+                    </if>
+                    <if test="orderInfo.status != null and orderInfo.status.trim() != ''">
+                        AND i.STATUS = #{orderInfo.status}
+                    </if>
+            ) AS chart
+        GROUP BY chart.time
+    </select>
+    <select id="getLastMonth" resultType="java.util.Map">
+        SELECT chart.time, COUNT(*) as num
+            FROM (
+                SELECT ID, DATE_FORMAT( ORDER_DATE, '%Y-%m' ) AS time FROM order_header_info i
+                WHERE 1=1
+                    AND DATE_FORMAT(ORDER_DATE, '%Y-%m') = #{time}
+                    <if test="orderInfo.orderType != null and orderInfo.orderType.trim() != ''">
+                        AND i.ORDER_TYPE = #{orderInfo.orderType}
+                    </if>
+                    <if test="orderInfo.status != null and orderInfo.status.trim() != ''">
+                        AND i.STATUS = #{orderInfo.status}
+                    </if>
+            ) AS chart
+        GROUP BY chart.time
+        LIMIT 1
+    </select>
+    <select id="findNumberOnWay" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM order_header_info i
+        WHERE 1=1
+--             AND i.STATUS <![CDATA[ <> ]]> '1120'
+            AND i.STATUS NOT IN ('1120', '2120')
+        <if test="isYesterday">
+            AND DATE_FORMAT(ORDER_DATE, '%Y %m %d') = DATE_FORMAT(DATE_SUB(curdate(),interval 1 day),'%Y %m %d')
+        </if>
+        <if test="orderInfo.orderType != null and orderInfo.orderType.trim() != ''">
+            AND i.ORDER_TYPE = #{orderInfo.orderType}
+        </if>
+    </select>
+
+    <update id="updateStatusByOrderNo">
+        UPDATE ORDER_HEADER_INFO t
+        SET t.STATUS = #{status},
+            t.STATUS_NAME = #{statusName},
+            t.STATUS_UPDTE = #{updatedTime}
+        WHERE
+            t.order_item = #{orderItem}
+    </update>
+
+    <select id="getOrderCountToday" resultType="Integer">
+        SELECT
+            count(DISTINCT ORDER_ITEM)
+        FROM order_header_info t
+        WHERE t.ORDER_ITEM IS NOT NULL
+        AND to_days(t.CREATED_TIME) = to_days(now())
+    </select>
+
+    <select id="getByOrderItem" resultType="com.platform.modules.order.entity.OrderHeaderInfoEntity">
+        SELECT
+        T.ID,
+        T.ORDER_NO,
+        T.ORDER_ITEM,
+        T.ORDER_DATE,
+        T.ORDER_TYPE,
+        T.STORE_HOUSE_CODE,
+        T.STORE_HOUSE_NAME,
+        T.SUPPLY_CODE,
+        T.SUPPLY_NAME,
+        T.STATUS,
+        T.STATUS_UPDTE,
+        T.COMPLATE_DATE,
+        T.STATUS_NAME,
+        T.BUYER_CODE,
+        T.BUYER_NAME,
+        T.SELLER_CODE,
+        T.SELLER_NAME,
+        T.START_POINT,
+        T.END_POINT,
+        T.INVOICE_NO,
+        T.DYNAMIC,
+        (SELECT SUPPLY_NAME FROM BASE_SUPPLY_INFO WHERE DEL_FLAG = '0' AND ID = T.CAR_SUPPLY_ID) AS CAR_SUPPLY_ID,
+        (SELECT SUPPLY_CODE FROM BASE_SUPPLY_INFO WHERE DEL_FLAG = '0' AND ID = T.CAR_SUPPLY_ID) AS CAR_SUPPLY_CODE,
+        (SELECT SUPPLY_NAME FROM BASE_SUPPLY_INFO WHERE DEL_FLAG = '0' AND ID = T.STORAGE_SUPPLY_ID) AS STORAGE_SUPPLY_ID,
+        (SELECT SUPPLY_CODE FROM BASE_SUPPLY_INFO WHERE DEL_FLAG = '0' AND ID = T.STORAGE_SUPPLY_ID) AS STORAGE_SUPPLY_CODE,
+        (SELECT CUSTOMER_CODE FROM BASE_CUSTOMER_INFO WHERE DEL_FLAG = '0' AND REGISTER_USER_ID = T.CUSTOMER_ID) AS CUSTOMER_CODE,
+        T.PIECE_NUMBER,
+        T.WEIGHT,
+        T.SEND_GOODS_PEOPLE,
+        T.SEND_GOODS_PEOPLE_ID,
+        T.RECEIVE_GOODS_PEOPLE,
+        T.RECEIVE_GOODS_PEOPLE_ID,
+        T.CUSTOMER_ID,
+        T.CAR_SUPPLY_STATUS,
+        T.STORAGE_SUPPLY_STATUS,
+        T.OUT_IN_ODD_NUM,
+        T.EXPECT_RECEIVE_DATE,
+        T.SHIPPING_ADDRESS,
+        T.RECEIVING_ADDRESS
+        FROM ORDER_HEADER_INFO T
+        WHERE 1=1
+        AND T.ORDER_ITEM = #{orderItem}
+        LIMIT 1
+    </select>
+    
+    <select id="queryScanInAll" resultType="java.util.Map">
+        SELECT
+            I.ORDER_NO AS orderNo,
+            S.GOOD_NAME AS goodsName,
+            S.UNIQUE_CODE AS uniqueCode,
+            S.OPERATOR_DATE AS operatorDate,
+            B.SPECIFICATION AS specification
+        FROM
+            order_header_info AS I,
+            order_good_unique_code_scan AS S ,
+            BASE_GOODS_INFO AS B
+        WHERE
+            I.ORDER_ITEM = S.ORDER_ITEM AND
+            S.GOOD_CODE=B.GOODS_CODE  AND
+            S.ORDER_ITEM = #{orderItem} AND
+            S.OPERATE_TYPE = #{operateType}
+    </select>
+
+    <select id="queryScanOutAll" resultType="java.util.Map">
+        SELECT
+            I.ORDER_NO AS orderNo,
+            S.GOOD_NAME AS goodName,
+            S.UNIQUE_CODE AS uniqueCode,
+            S.OPERATOR_DATE AS operatorDate,
+            g.SPECIFICATION AS specification,
+            S.OPERATE_RESULT AS operateResult
+        FROM
+            order_header_info AS I ,
+            order_good_unique_code_scan AS S ,
+            base_goods_info AS g
+        WHERE
+            I.ORDER_ITEM = S.ORDER_ITEM AND
+            s.GOOD_CODE = g.GOODS_CODE AND
+            S.ORDER_ITEM = #{orderItem} AND
+            S.OPERATE_TYPE = #{operateType}
+    </select>
+
+    <select id="queryOrderItem" resultType="java.lang.String">
+        select order_item orderItem
+        from order_header_info ORDER BY orderItem desc
+    </select>
+
+    <select id="queryTransport" resultType="java.util.Map">
+        SELECT
+            B.CUSTOMER_ADDRESS AS receiveAddress,
+            B.LINK_NAME AS consignee,
+            B.LINK_PHONE AS receiveMobile,
+            B.PRIVINCE AS receiveProvince,
+            B.CITY AS receiveCity,
+            B.AREA AS receiveDistrict,
+            O.ORDER_TYPE AS orderType,
+            O.SELLER_NAME AS deliveryCompany,
+            O.BUYER_NAME AS receiveCompany,
+            O.SUPPLY_NAME AS carrierName,
+            O.STORE_HOUSE_NAME AS storeHouseName,
+            SE.CUSTOMER_ADDRESS AS deliveryAddress,
+            SE.LINK_NAME AS deliveryName,
+            SE.LINK_PHONE AS deliveryMobile,
+            SE.PRIVINCE AS deliveryProvince,
+            SE.CITY AS deliveryCity,
+            SE.AREA AS deliveryDistrict,
+            O.ORDER_ITEM AS orderItem,
+            BS.LINK_PHONE AS carrierMobile,
+            BS.LINK_NAME AS carrierMan,
+            BS.SUPPLY_ADDRESS AS supplyAddress,
+            BS.PHONE AS phone,
+            BS.PRIVINCE AS Privince,
+            BS.CITY AS city,
+            BS.AREA AS area
+        FROM
+            order_header_info AS O
+            INNER JOIN base_customer_info AS B ON O.BUYER_CODE = B.CUSTOMER_CODE
+            INNER JOIN base_customer_info AS SE ON O.SELLER_CODE = SE.CUSTOMER_CODE
+            INNER JOIN base_supply_info AS BS ON O.SUPPLY_CODE = BS.SUPPLY_CODE
+        WHERE
+            O.ORDER_ITEM = #{orderItem} AND
+            BS.DEL_FLAG = '0' AND
+            B.DEL_FLAG = '0' AND
+            SE.DEL_FLAG = '0'
+    </select>
+
+    <select id="queryTransportOrder" resultType="java.util.Map">
+        SELECT
+            O.ORDER_ITEM AS orderItem,
+            O.ORDER_TYPE AS orderType,
+            O.BUYER_NAME AS receiveCompany,
+			O.SELLER_NAME AS deliveryCompany,
+            O.SUPPLY_NAME AS carrierName,
+            O.STORE_HOUSE_NAME AS storeHouseName
+        FROM
+            order_header_info AS O
+        WHERE
+            O.ORDER_ITEM = #{orderItem}
+    </select>
+        <!--  收货人-->
+<!--承运公司-->
+    <select id="queryTransportCarrier" resultType="java.util.Map">
+        SELECT
+            BS.LINK_PHONE AS carrierMobile,
+            BS.LINK_NAME AS carrierMan,
+            BS.SUPPLY_CODE AS supplycode,
+            BS.SUPPLY_ADDRESS AS supplyAddress,
+            BS.PHONE AS phone,
+            BS.PRIVINCE AS privince,
+            BS.CITY AS city,
+            BS.AREA AS area,
+            O.ORDER_ITEM AS orderItem,
+            O.ORDER_TYPE AS orderType,
+            O.BUYER_NAME AS receiveCompany,
+			O.SELLER_NAME AS deliveryCompany,
+            O.SUPPLY_NAME AS carrierName
+        FROM
+            order_header_info AS O
+            JOIN base_supply_info AS BS ON O.STORE_HOUSE_CODE = BS.SUPPLY_CODE
+            JOIN base_linkman_info AS BL ON BL.BELONG_TO=BS.SUPPLY_CODE
+        WHERE
+            O.ORDER_ITEM = #{orderItem} AND
+            BS.DEL_FLAG = '0' AND
+            BS.TYPE='F'
+    </select>
+
+    <!--入库-->
+    <select id="outInfo" resultType="java.util.Map">
+      SELECT
+      O.SELLER_NAME AS deliveryCompany,
+           SE.LINK_NAME AS deliveryName,
+           SE.LINK_PHONE AS deliveryMobile,
+           SE.CUSTOMER_ADDRESS AS deliveryAddress,
+           SE.PRIVINCE AS deliveryProvince,
+           SE.CITY AS deliveryCity,
+           SE.AREA AS deliveryDistrict,
+           O.STORE_HOUSE_NAME AS receiveCompany,
+            BL.NAME AS consignee,
+            Bl.PHONE AS receiveMobile,
+            BS.SUPPLY_ADDRESS AS receiveAddress,
+       BS.PRIVINCE AS receiveProvince,
+        BS.CITY AS receiveCity,
+        BS.AREA AS receiveDistrict
+
+      FROM
+       order_header_info AS O
+          JOIN base_customer_info AS SE ON O.SELLER_CODE = SE.CUSTOMER_CODE
+         JOIN base_supply_info AS BS ON O.STORE_HOUSE_CODE = BS.SUPPLY_CODE
+         JOIN base_linkman_info AS BL ON BL.BELONG_TO=BS.SUPPLY_CODE
+         WHERE
+          O.ORDER_ITEM = #{orderItem}
+    </select>
+
+    <!--出库-->
+    <select id="inInfo" resultType="java.util.Map">
+        SELECT
+          O.STORE_HOUSE_NAME AS deliveryCompany,
+          BL.NAME AS deliveryName,
+          Bl.PHONE AS deliveryMobile,
+          BS.SUPPLY_ADDRESS AS deliveryAddress,
+          BS.PRIVINCE AS deliveryProvince,
+          BS.CITY AS deliveryCity,
+          BS.AREA AS deliveryDistrict,
+          O.BUYER_NAME AS receiveCompany,
+          SE.LINK_NAME AS consignee,
+          SE.LINK_PHONE AS receiveMobile,
+          SE.CUSTOMER_ADDRESS AS receiveAddress,
+          SE.PRIVINCE AS receiveProvince,
+          SE.CITY AS receiveCity,
+          SE.AREA AS receiveDistrict
+        FROM
+         order_header_info AS O
+         JOIN base_customer_info AS SE ON O.BUYER_CODE = SE.CUSTOMER_CODE
+         JOIN base_supply_info AS BS ON O.STORE_HOUSE_CODE = BS.SUPPLY_CODE
+         JOIN base_linkman_info AS BL ON BL.BELONG_TO=BS.SUPPLY_CODE
+         WHERE
+          O.ORDER_ITEM = #{orderItem}
+    </select>
+
+    <!--查询所有订单订单状态为“订单创建”且DYNMIC不为空的订单-->
+    <!--List<OrderHeaderInfoEntity> getNewOrderList();-->
+    <select id="getNewOrderList" resultType="com.platform.modules.order.entity.OrderHeaderInfoEntity">
+         SELECT
+        T.DEL_FLAG,
+        T.CREATED_BY,
+        T.CREATED_TIME,
+        T.UPDATED_BY,
+        T.UPDATED_TIME,
+        T.ID,
+        T.ORDER_NO,
+        T.ORDER_ITEM,
+        T.ORDER_DATE,
+        T.ORDER_TYPE,
+        T.STORE_HOUSE_CODE,
+        T.STORE_HOUSE_NAME,
+        T.SUPPLY_CODE,
+        T.SUPPLY_NAME,
+        T.STATUS,
+        T.STATUS_UPDTE,
+        T.COMPLATE_DATE,
+        T.STATUS_NAME,
+        T.BUYER_CODE,
+        T.BUYER_NAME,
+        T.SELLER_CODE,
+        T.SELLER_NAME,
+        T.START_POINT,
+        T.END_POINT,
+        T.INVOICE_NO,
+        T.DYNAMIC,
+        T.CAR_SUPPLY_ID,
+        T.STORAGE_SUPPLY_ID,
+        T.PIECE_NUMBER,
+        T.WEIGHT,
+        T.SEND_GOODS_PEOPLE,
+        T.RECEIVE_GOODS_PEOPLE,
+        T.CUSTOMER_ID,
+        T.CAR_SUPPLY_STATUS,
+        T.STORAGE_SUPPLY_STATUS,
+        T.OUT_IN_ODD_NUM,
+        T.EXPECT_RECEIVE_DATE,
+        T.SHIPPING_ADDRESS,
+        T.RECEIVING_ADDRESS
+        FROM ORDER_HEADER_INFO T
+        WHERE T.STATUS IN ('1000','2000') AND T.DYNAMIC IS NOT NULL
+    </select>
+    
+    <select id="getByOrderCount" resultType="java.util.Map">
+        SELECT
+            DATE_FORMAT( ORDER_DATE, "%Y-%m-%d" ) AS days,
+            count( ID ) count
+        FROM
+            order_header_info
+        WHERE
+            ORDER_TYPE = #{orderType}
+            <if test="startTime != null and startTime.trim() != ''">
+                AND DATE_FORMAT( ORDER_DATE, "%Y-%m-%d" ) &gt;= #{startTime}
+            </if>
+            <if test="endTime != null and endTime.trim() != ''">
+                AND DATE_FORMAT( ORDER_DATE, "%Y-%m-%d" ) &lt;= #{endTime}
+            </if>
+        GROUP BY
+            days
+        ORDER BY
+            days
+    </select>
+
+    <!--统计本月各仓库的订单数 -->
+    <!-- List<Map<String,Integer>> countStoreOrderEveryMonth();-->
+    <select id="countStoreOrderEveryMonth" resultType="java.util.Map">
+        SELECT
+            B.SUPPLY_NAME AS name,
+            COUNT( O.ORDER_ITEM ) AS value
+        FROM
+            BASE_SUPPLY_INFO B
+            LEFT JOIN ( SELECT ORDER_ITEM, ORDER_DATE, STORAGE_SUPPLY_ID FROM ORDER_HEADER_INFO WHERE DATE_FORMAT( ORDER_DATE, '%Y%m' ) = DATE_FORMAT( CURDATE( ), '%Y%m' ) ) O ON O.STORAGE_SUPPLY_ID = B.ID
+        WHERE
+            B.TYPE LIKE '%F%' AND B.DEL_FLAG = '0'
+        GROUP BY
+            B.SUPPLY_NAME
+    </select>
+    <select id="getNum" resultType="java.lang.Integer">
+        SELECT IFNULL(COUNT(*), 0)
+            FROM (
+                SELECT ID, DATE_FORMAT( ORDER_DATE, #{pattern} ) AS time FROM order_header_info i
+                WHERE DATE_FORMAT(ORDER_DATE, #{pattern}) = #{time}
+                <if test="orderType != null and orderType.trim() != ''">
+                    AND i.ORDER_TYPE = #{orderType}
+                </if>
+            ) AS chart
+    </select>
+    <select id="getOrderItemList" resultType="string">
+        SELECT ORDER_ITEM
+        FROM ORDER_HEADER_INFO T
+        WHERE T.DEL_FLAG = '0'
+        AND T.CUSTOMER_ID = #{customerId}
+        AND T.STORAGE_SUPPLY_ID = #{storageSupplyId}
+    </select>
+    <select id="findByOrderItem" resultType="map">
+        SELECT DISTINCT
+            b.CUSTOMER_CODE customerCode,
+            b.CUSTOMER_NAME customerName,
+            o.ORDER_ITEM orderItem,
+            o.ORDER_NO orderNo,
+            o.INVOICE_NO invoiceNo,
+            c.WAY_BILL_NO wayBillNo,
+            o.START_POINT startPoint,
+            o.END_POINT endPoint,
+            o.PIECE_NUMBER pieceNumber,
+            o.WEIGHT weight
+        FROM
+            order_header_info o
+            LEFT JOIN order_car_relation c ON o.ORDER_ITEM = c.ORDER_ITEM
+            LEFT JOIN base_customer_info b ON o.CUSTOMER_ID = b.REGISTER_USER_ID
+        WHERE
+            o.ORDER_ITEM = #{orderItem}
+    </select>
+
+    <select id="getOrderNumByType" resultType="map">
+        SELECT
+            DATE_FORMAT( O.ORDER_DATE, '%Y-%m' ) yearMonth,
+            COUNT( O.ORDER_ITEM ) total
+        FROM
+            ORDER_HEADER_INFO O
+        WHERE 1=1
+            <if test="params.customerId != null and params.customerId.trim() != ''">
+                AND O.CUSTOMER_ID = #{params.customerId}
+            </if>
+            <if test="params.supplyId != null and params.supplyId.trim() != ''">
+                AND (O.CAR_SUPPLY_ID = #{params.supplyId} OR O.STORAGE_SUPPLY_ID = #{params.supplyId})
+            </if>
+            AND O.ORDER_TYPE = #{type}
+            AND DATE_FORMAT( O.ORDER_DATE, '%Y-%m' )
+                BETWEEN DATE_FORMAT( DATE_ADD(CURDATE(), INTERVAL -12 MONTH), '%Y-%m' )
+                AND DATE_FORMAT( CURDATE(), '%Y-%m' )
+        GROUP BY
+            yearMonth
+        ORDER BY
+            yearMonth
+    </select>
+</mapper>

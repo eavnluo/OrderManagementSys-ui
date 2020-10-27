@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.platform.modules.requesting.dao.RequestingResearchDao">
+
+    <sql id="selectSql">
+        SELECT
+        T.ID,
+        T.COMPANY_NAME,
+        T.USCC,
+        T.CONTACT_NAME,
+        T.PHONE_NUMBER,
+        T.EMAIL,
+        T.INDUSTRY,
+        T.SEGMENTATION,
+        T.PRODUCT_RANGE,
+        T.FINANCING_AMOUNT,
+        T.MANAGEMENT_SYSTEM,
+        T.OTHER_SYSTEM,
+        T.STATUS,
+        T.CREATE_BY,
+        T.CREATE_TIME,
+        T.UPDATE_BY,
+        T.UPDATE_TIME
+        FROM REQUESTING_RESEARCH T
+        WHERE 1=1 AND T.STATUS = 0
+        <if test="params.companyName != null and params.companyName.trim() != ''">
+            AND T.NAME LIKE '%${params.companyName}%'
+        </if>
+    </sql>
+    <update id="changeStatusByIds">
+        UPDATE REQUESTING_RESEARCH
+        SET STATUS = #{status}, UPDATE_TIME = #{updateTime}
+        WHERE ID IN
+        <foreach collection="list" index="index" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <select id="selectRequestingResearchPage" resultType="com.platform.modules.requesting.entity.RequestingResearchEntity">
+        <include refid="selectSql"/>
+    </select>
+
+    <select id="queryAll" resultType="com.platform.modules.requesting.entity.RequestingResearchEntity">
+        <include refid="selectSql"/>
+    </select>
+    <select id="getByPhoneNumber" resultType="com.platform.modules.requesting.entity.RequestingResearchEntity">
+        SELECT * FROM REQUESTING_RESEARCH T WHERE T.PHONE_NUMBER = #{phoneNumber} LIMIT 1
+    </select>
+</mapper>

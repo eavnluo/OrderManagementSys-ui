@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.platform.modules.order.dao.OrderStatusFlowFileDao">
+
+    <sql id="selectSql">
+        SELECT
+        T.ID,
+        T.ORDER_STATUS_FLOW_ID,
+        T.FILE_NAME,
+        T.FILE_URL,
+        T.CREATED_BY,
+        T.CREATED_TIME,
+        T.UPDATED_BY,
+        T.UPDATED_TIME,
+        T.DEL_FLAG
+        FROM ORDER_STATUS_FLOW_FILE T
+        WHERE 1=1 AND T.DEL_FLAG = '0'
+        <if test="params.name != null and params.name.trim() != ''">
+            AND T.NAME LIKE '%${params.name}%'
+        </if>
+    </sql>
+
+    <select id="selectOrderStatusFlowFilePage" resultType="com.platform.modules.order.entity.OrderStatusFlowFileEntity">
+        <include refid="selectSql"/>
+    </select>
+
+    <select id="queryAll" resultType="com.platform.modules.order.entity.OrderStatusFlowFileEntity">
+        <include refid="selectSql"/>
+    </select>
+</mapper>

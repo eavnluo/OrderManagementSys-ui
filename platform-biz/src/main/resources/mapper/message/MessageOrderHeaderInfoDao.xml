@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.platform.modules.message.dao.MessageOrderHeaderInfoDao">
+
+    <sql id="selectSql">
+        SELECT
+        T.DEL_FLAG,
+        T.CREATED_BY,
+        T.CREATED_TIME,
+        T.UPDATED_BY,
+        T.UPDATED_TIME,
+        T.ID,
+        T.ORDER_NO,
+        T.ORDER_DATE,
+        T.ORDER_TYPE,
+        T.STORE_HOUSE_CODE,
+        T.GOOD_CODE,
+        T.GOOD_NAME,
+        T.GOOD_COUNT,
+        T.OWNER_NAME,
+        T.OWNER_CODE,
+        T.SUPPLY_CODE,
+        T.SUPPLY_NAME,
+        T.SOURCE,
+        T.ODER_LEVEL,
+        T.RECEIVER,
+        T.RECEIVE_TEL,
+        T.RECEIVE_PHONE,
+        T.RECEIVE_REGION,
+        T.RECEIVE_CITY,
+        T.RECEIVE_ADDRESS,
+        T.STATUS,
+        T.STATUS_UPDTE,
+        T.COMPLATE_DATE,
+        T.STATUS_NAME
+        FROM MESSAGE_ORDER_HEADER_INFO T
+        WHERE T.DEL_FLAG = '0'
+        <if test="params.orderNo != null and params.orderNo.trim() != ''">
+            AND T.ORDER_NO LIKE '%${params.orderNo}%'
+        </if>
+        <if test="params.dateFrom != null and params.dateTo != null and params.dateFrom.trim() != '' and params.dateTo.trim() != ''">
+            AND TO_DAYS(T.ORDER_DATE) &gt;= TO_DAYS('${params.dateFrom}')
+            AND TO_DAYS(T.ORDER_DATE) &lt;= TO_DAYS('${params.dateTo}')
+        </if>
+        <if test="params.orderType != null and params.orderType.trim() != ''">
+            AND T.ORDER_TYPE = '${params.orderType}'
+        </if>
+        <if test="params.goodCode != null and params.goodCode.trim() != ''">
+            AND T.GOOD_CODE = '${params.goodCode}'
+        </if>
+        <if test="params.goodName != null and params.goodName.trim() != ''">
+            AND T.GOOD_NAME = '${params.goodName}'
+        </if>
+        <if test="params.ownerName != null and params.ownerName.trim() != ''">
+            AND T.OWNER_NAME = '${params.ownerName}'
+        </if>
+        <if test="params.receiver != null and params.receiver.trim() != ''">
+            AND T.RECEIVER = '${params.receiver}'
+        </if>
+    </sql>
+
+    <select id="selectMessageOrderHeaderInfoPage" resultType="com.platform.modules.message.entity.MessageOrderHeaderInfoEntity">
+        <include refid="selectSql"/>
+    </select>
+
+    <select id="queryAll" resultType="com.platform.modules.message.entity.MessageOrderHeaderInfoEntity">
+        <include refid="selectSql"/>
+    </select>
+</mapper>

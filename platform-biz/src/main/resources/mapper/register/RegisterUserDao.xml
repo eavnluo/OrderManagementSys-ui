@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.platform.modules.register.dao.RegisterUserDao">
+
+    <sql id="selectSql">
+        SELECT
+        T.ID,
+        T.PHONE_NUMBER,
+        T.NAME,
+        T.TYPE,
+        T.PASSWORD,
+        T.SALT,
+        T.EMAIL,
+        T.STATUS,
+        T.REGISTER_TIME,
+        T.UPDATE_TIME,
+        T.AUTHENTICATION_STATUS
+        FROM REGISTER_USER T
+        WHERE 1=1
+        <if test="params.name != null and params.name.trim() != ''">
+            AND T.NAME LIKE '%${params.name}%'
+        </if>
+        <if test="params.type != null and params.type.trim() != ''">
+            AND T.TYPE = #{params.type}
+        </if>
+    </sql>
+
+    <update id="updateStatusByIds">
+        UPDATE REGISTER_USER
+           SET STATUS = #{status}, UPDATE_TIME = #{updateTime}
+         WHERE ID IN
+        <foreach collection="list" index="index" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </update>
+    <update id="editPassword">
+        UPDATE REGISTER_USER
+           SET PASSWORD = #{password}, UPDATE_TIME = #{updateTime}
+         WHERE PHONE_NUMBER = #{phoneNumber}
+    </update>
+
+    <select id="selectRegisterUserPage" resultType="com.platform.modules.register.entity.RegisterUserEntity">
+        <include refid="selectSql"/>
+    </select>
+
+    <select id="queryAll" resultType="com.platform.modules.register.entity.RegisterUserEntity">
+        <include refid="selectSql"/>
+    </select>
+    <select id="getByPhone" resultType="com.platform.modules.register.entity.RegisterUserEntity">
+        SELECT * FROM REGISTER_USER T WHERE T.PHONE_NUMBER = #{phoneNumber}
+        <if test="status != null and status.trim() != ''">
+            AND T.STATUS = #{status}
+        </if>
+        LIMIT 1
+    </select>
+
+    <update id="updateAuthenticationStatus">
+        update
+          REGISTER_USER
+        set
+          AUTHENTICATION_STATUS = #{authenticationStatus}
+        where
+          ID = #{id}
+    </update>
+</mapper>

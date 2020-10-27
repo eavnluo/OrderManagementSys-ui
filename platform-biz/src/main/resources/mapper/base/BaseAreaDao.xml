@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.platform.modules.base.dao.BaseAreaDao">
+
+    <sql id="selectSql">
+        SELECT
+        T.ID,
+        T.NAME,
+        T.PARENT_ID,
+        T.SHORT_NAME,
+        T.LEVEL_TYPE,
+        T.CITY_CODE,
+        T.ZIP_CODE,
+        T.MERGER_NAME,
+        T.ING,
+        T.LAT,
+        T.PIN_YIN
+        FROM BASE_AREA T
+        WHERE 1=1
+        <if test="params.name != null and params.name.trim() != ''">
+            AND T.NAME LIKE '%${params.name}%'
+        </if>
+    </sql>
+
+    <select id="selectBaseAreaPage" resultType="com.platform.modules.base.entity.BaseAreaEntity">
+        <include refid="selectSql"/>
+    </select>
+
+    <select id="queryAll" resultType="com.platform.modules.base.entity.BaseAreaEntity">
+        <include refid="selectSql"/>
+    </select>
+
+    <select id="queryCode" resultType="java.lang.String">
+        SELECT
+            base_area.ID
+        FROM
+            base_area
+        WHERE
+            base_area.`NAME`
+        LIKE #{NAME}
+    </select>
+</mapper>

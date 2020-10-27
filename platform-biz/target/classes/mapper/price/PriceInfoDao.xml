@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.platform.modules.price.dao.PriceInfoDao">
+
+    <sql id="selectSql">
+        SELECT
+        T.ID,
+        T.PRICE_NO,
+        T.COMPANY_CODE,
+        T.COMPANY_NAME,
+        T.BIDDER,
+        T.QUOTE_TIME,
+        T.EFFECT_TIME,
+        T.EXPIRE_TIME,
+        T.START_AREA,
+        T.END_AREA,
+        T.TYPE,
+        T.SETTLEMENT_CYCLE,
+        T.CUSTOMER_REPRESENTATIVE,
+        T.APPROVER,
+        T.STATUS,
+        T.CREATE_BY,
+        T.CREATE_TIME,
+        T.UPDATE_BY,
+        T.UPDATE_TIME
+        FROM PRICE_INFO T
+        WHERE 1=1
+        <if test="params.companyName != null and params.companyName.trim() != ''">
+            AND T.COMPANY_NAME LIKE '%${params.companyName}%'
+        </if>
+        <if test="params.companyCode != null and params.companyCode.trim() != ''">
+            AND T.COMPANY_CODE LIKE '%${params.companyCode}%'
+        </if>
+        <if test="params.type != null and params.type.trim() != ''">
+            AND T.TYPE LIKE '%${params.type}%'
+        </if>
+        <if test="params.status != null and params.status.trim() != ''">
+            AND T.STATUS = #{params.status}
+        </if>
+        ORDER BY T.QUOTE_TIME DESC
+    </sql>
+    <update id="updateStatus">
+        UPDATE PRICE_INFO T
+           SET T.STATUS = #{status}, T.UPDATE_BY = #{userId}, T.UPDATE_TIME = #{updateTime}
+         WHERE T.ID = #{id}
+    </update>
+    <update id="toInvalid">
+        <![CDATA[ UPDATE PRICE_INFO SET STATUS = '1', UPDATE_TIME = NOW() WHERE EXPIRE_TIME < NOW() ]]>
+    </update>
+
+    <select id="selectPriceInfoPage" resultType="com.platform.modules.price.entity.PriceInfoEntity">
+        <include refid="selectSql"/>
+    </select>
+
+    <select id="queryAll" resultType="com.platform.modules.price.entity.PriceInfoEntity">
+        <include refid="selectSql"/>
+    </select>
+
+    <select id="getCountForToday" resultType="java.lang.Integer">
+        SELECT
+            COUNT(DISTINCT PRICE_NO)
+        FROM PRICE_INFO T
+        WHERE T.PRICE_NO IS NOT NULL
+        AND to_days(T.CREATE_TIME) = to_days(now())
+    </select>
+    <select id="findSupplyList" resultType="java.util.Map">
+        SELECT DISTINCT
+            I.COMPANY_CODE AS 'supplyCode',
+            I.COMPANY_NAME AS 'supplyName'
+        FROM
+            PRICE_INFO I
+        WHERE
+            I.ID IN ( SELECT PRICE_INFO_ID FROM PRICE_DETAIL WHERE TYPE = #{params.type} AND CODE = #{params.code} )
+            AND
+            I.COMPANY_CODE LIKE '@%'
+    </select>
+</mapper>

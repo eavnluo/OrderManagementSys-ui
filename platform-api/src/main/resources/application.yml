@@ -1,0 +1,40 @@
+# Tomcat
+server:
+  tomcat:
+    uri-encoding: UTF-8
+    max-threads: 1024
+    min-spare-threads: 30
+    accept-count: 5000
+  port: 8880
+  connection-timeout: 1000ms
+  servlet:
+    context-path: /api
+
+spring:
+  main:
+    allow-bean-definition-overriding: true
+  # 环境 dev|prod
+  profiles:
+    active: dev
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
+      enabled: true
+  mvc:
+    throw-exception-if-no-handler-found: true
+    static-path-pattern: /static/**
+  resources:
+    add-mappings: false
+
+
+platform-api:
+  # APPI模块，是通过jwt认证的，如果要使用APP模块，则需要修改【加密秘钥】
+  jwt:
+    # 加密秘钥
+    secret: api.kaishengjwt.com
+    # token有效时长，7天，单位秒
+    expire: 604800
+    header: token
+#logging:
+  #config: classpath:logback-spring.xml

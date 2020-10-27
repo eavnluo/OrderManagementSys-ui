@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.platform.modules.ferries.dao.FerriesReportDao">
+
+    <sql id="selectSql">
+        SELECT
+        T.ID,
+        T.FILLING_DATE,
+        T.WEEK_CARTON_NUMBER,
+        T.MONTH_CARTON_NUMBER,
+        T.YEAR_CARTON_NUMBER,
+        T.ZHONG_OU,
+        T.ZHONG_E,
+        T.ZHONG_YA,
+        T.INLAND,
+        T.CREATED_BY,
+        T.CREATED_TIME,
+        T.UPDATED_BY,
+        T.UPDATED_TIME,
+        T.DEL_FLAG
+        FROM FERRIES_REPORT T
+        WHERE T.DEL_FLAG = '0'
+        <if test="params.fillingDate != null and params.fillingDate.trim() != ''">
+            AND TO_DAYS(T.FILLING_DATE)=TO_DAYS('${params.fillingDate}')
+        </if>
+    </sql>
+
+    <select id="selectFerriesReportPage" resultType="com.platform.modules.ferries.entity.FerriesReportEntity">
+        <include refid="selectSql"/>
+    </select>
+
+    <select id="queryAll" resultType="com.platform.modules.ferries.entity.FerriesReportEntity">
+        <include refid="selectSql"/>
+    </select>
+
+    <select id="findListForChart" resultType="com.platform.modules.ferries.entity.FerriesReportEntity">
+        SELECT *
+            FROM FERRIES_REPORT T
+        WHERE T.DEL_FLAG = '0'
+            AND DATE_FORMAT(T.FILLING_DATE, '%Y') = DATE_FORMAT(DATE_SUB(curdate(), INTERVAL 0 MONTH),'%Y')
+        ORDER BY T.FILLING_DATE
+    </select>
+    <select id="getNewInfo" resultType="com.platform.modules.ferries.entity.FerriesReportEntity">
+        SELECT *
+            FROM FERRIES_REPORT T
+        WHERE T.DEL_FLAG = '0'
+        ORDER BY T.FILLING_DATE DESC
+        LIMIT 1
+    </select>
+</mapper>

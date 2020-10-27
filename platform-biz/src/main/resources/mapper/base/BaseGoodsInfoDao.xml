@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.platform.modules.base.dao.BaseGoodsInfoDao">
+
+    <sql id="selectSql">
+        SELECT
+        T.ID,
+        T.GOODS_CODE,
+        T.GOODS_NAME,
+        T.CATEGORY_CODE,
+        T.CATEGORY_NAME,
+        T.BRAND,
+        T.SPECIFICATION,
+        T.BAR_CODE,
+        T.UNIT,
+        T.ORIGIN,
+        T.PRICE,
+        T.GOODS_LONG,
+        T.GOODS_WIDTH,
+        T.GOODS_HIGH,
+        T.GOODS_WEIGHT,
+        T.COLOR,
+        T.CYCLE_TIME,
+        T.REMARKS1,
+        T.REMARKS2,
+        T.REMARKS3,
+        T.CREATED_BY,
+        T.CREATED_TIME,
+        T.UPDATED_BY,
+        T.UPDATED_TIME,
+        T.DEL_FLAG,
+        T.INFO_NUM,
+        T.GOODS_MODEL,
+        T.GOODS_PACKING,
+        T.GOODS_MATERIAL,
+        T.GOODS_BATCH,
+        T.PRODUCTION_DATE
+        FROM BASE_GOODS_INFO T
+        WHERE T.DEL_FLAG = '0'
+        <if test="params.goodsName != null and params.goodsName.trim() != ''">
+            AND T.GOODS_NAME LIKE '%${params.goodsName}%'
+        </if>
+    </sql>
+
+    <select id="selectBaseGoodsInfoPage" resultType="com.platform.modules.base.entity.BaseGoodsInfoEntity">
+        <include refid="selectSql"/>
+    </select>
+
+    <select id="queryAll" resultType="com.platform.modules.base.entity.BaseGoodsInfoEntity">
+        <include refid="selectSql"/>
+        <if test="params.goodsCode != null and params.goodsCode.trim() != ''">
+            AND T.GOODS_CODE LIKE '%${params.goodsCode}%'
+        </if>
+    </select>
+    <select id="findList" resultType="java.util.Map">
+        SELECT
+            T.GOODS_CODE AS goodsCode,
+            T.GOODS_NAME AS goodsName,
+            T.CATEGORY_NAME AS goodsType,
+            T.BRAND AS brand,
+            T.SPECIFICATION AS goodsSpec
+        FROM
+            BASE_GOODS_INFO T
+        WHERE
+            T.DEL_FLAG = '0'
+    </select>
+    <select id="findGoodsList" resultType="com.platform.modules.base.entity.BaseGoodsInfoEntity">
+        SELECT *
+        FROM
+        BASE_GOODS_INFO T
+        WHERE
+        T.DEL_FLAG = '0'
+    </select>
+    
+    <select id="selectByBarCode" resultType="com.platform.modules.base.entity.BaseGoodsInfoEntity">
+        SELECT *
+        FROM BASE_GOODS_INFO T
+        WHERE T.DEL_FLAG = '0' AND T.BAR_CODE IN
+        <foreach collection="array" item="barCode" open="(" close=")" separator=",">
+          #{barCode}
+        </foreach>
+    </select>
+</mapper>

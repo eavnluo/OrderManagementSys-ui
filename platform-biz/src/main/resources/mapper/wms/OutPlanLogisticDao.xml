@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.platform.modules.wms.dao.OutPlanLogisticDao">
+
+    <sql id="selectSql">
+        SELECT
+        T.ID,
+        T.CARRIER_COMPANY,
+        T.CARRIER_FREIGHT_FEE,
+        T.CARRIER_ID,
+        T.CARRIER_MAN,
+        T.CARRIER_MOBILE,
+        T.CARRIER_NAME,
+        T.CONSIGNEE,
+        T.CONSIGNEE_ID,
+        T.DELIVERY_ADDRESS,
+        T.DELIVERY_CITY,
+        T.DELIVERY_CITY_CODE,
+        T.DELIVERY_COMPANY,
+        T.DELIVERY_COMPANY_CODE,
+        T.DELIVERY_DISTRICT,
+        T.DELIVERY_DISTRICT_CODE,
+        T.DELIVERY_MOBILE,
+        T.DELIVERY_NAME,
+        T.DELIVERY_PARTY_ID,
+        T.DELIVERY_PROVINCE,
+        T.DELIVERY_PROVINCE_CODE,
+        T.DELIVERY_TOWN,
+        T.DELIVERY_TOWN_CODE,
+        T.PAYMENT_COLLECTION,
+        T.PAYMENT_METHOD,
+        T.RECEIPT_NUM,
+        T.RECEIPT_TYPE,
+        T.RECEIVE_ADDRESS,
+        T.RECEIVE_CITY,
+        T.RECEIVE_CITY_CODE,
+        T.RECEIVE_COMPANY,
+        T.RECEIVE_DISTRICT,
+        T.RECEIVE_DISTRICT_CODE,
+        T.RECEIVE_MOBILE,
+        T.RECEIVE_PROVINCE,
+        T.RECEIVE_PROVINCE_CODE,
+        T.RECEIVE_TOWN,
+        T.RECEIVE_TOWN_CODE,
+        T.REMARK,
+        T.TRANSPORT_EXTRA_FEE,
+        T.TRANSPORT_TYPE_VALUE,
+        T.DEL_FLAG,
+        T.CREATED_BY,
+        T.CREATED_TIME,
+        T.UPDATED_BY,
+        T.UPDATED_TIME
+        FROM STORE_OUT_LOGISTIC T
+        WHERE T.DEL_FLAG = '0'
+        <if test="params.name != null and params.name.trim() != ''">
+            AND T.CARRIER_COMPANY LIKE '%${params.name}%'
+        </if>
+    </sql>
+
+    <select id="selectOutPlanLogisticPage" resultType="com.platform.modules.wms.entity.OutPlanLogisticEntity">
+        <include refid="selectSql"/>
+    </select>
+
+    <select id="queryAll" resultType="com.platform.modules.wms.entity.OutPlanLogisticEntity">
+        <include refid="selectSql"/>
+    </select>
+    <select id="findByWayBillNo" resultType="com.platform.modules.wms.entity.OutPlanLogisticEntity">
+        SELECT *
+        FROM STORE_OUT_LOGISTIC T
+        WHERE T.DEL_FLAG = '0'
+        AND T.WAY_BILL_NO = #{wayBillNo}
+    </select>
+
+    <select id="queryLogisticsInfo"
+            resultType="com.platform.modules.wms.entity.OutPlanLogisticEntity">
+        SELECT *
+        <!--        <include refid="logisticsInfoColumns"></include>-->
+        FROM store_out_logistic T
+        WHERE T.DEL_FLAG = '0'
+        AND T.ORDER_ITEM = #{orderItem}
+        AND T.WAY_BILL_NO IN
+        <foreach collection="orderRelationshipList" item="orderRelationEntity" open="(" close=")" separator=",">
+            #{orderRelationEntity.wayBillNo}
+        </foreach>
+    </select>
+
+    <update id="setPublish">
+        update store_out_logistic set PUBLISH_FLAG = 'y'
+        where ORDER_ITEM = #{orderItem}
+    </update>
+</mapper>

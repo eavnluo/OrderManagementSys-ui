@@ -1,0 +1,34 @@
+{
+  "groups": [
+    {
+      "name": "platform-api.jwt",
+      "type": "com.platform.common.utils.JwtUtils",
+      "sourceType": "com.platform.common.utils.JwtUtils"
+    },
+    {
+      "name": "spring.datasource.druid.first",
+      "type": "javax.sql.DataSource",
+      "sourceType": "com.platform.datasources.DynamicDataSourceConfig",
+      "sourceMethod": "firstDataSource()"
+    }
+  ],
+  "properties": [
+    {
+      "name": "platform-api.jwt.expire",
+      "type": "java.lang.Long",
+      "sourceType": "com.platform.common.utils.JwtUtils",
+      "defaultValue": 0
+    },
+    {
+      "name": "platform-api.jwt.header",
+      "type": "java.lang.String",
+      "sourceType": "com.platform.common.utils.JwtUtils"
+    },
+    {
+      "name": "platform-api.jwt.secret",
+      "type": "java.lang.String",
+      "sourceType": "com.platform.common.utils.JwtUtils"
+    }
+  ],
+  "hints": []
+}

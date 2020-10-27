@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.platform.modules.base.dao.BaseCustomerInfoDao">
+
+    <sql id="selectSql">
+        SELECT
+        T.ID,
+        T.CUSTOMER_CODE,
+        T.CUSTOMER_NAME,
+        T.CUSTOMER_ADDRESS,
+        T.INDUSTRY_TYPE,
+        T.LINK_NAME,
+        T.LINK_PHONE,
+        T.REGION,
+        T.COUNTRY,
+        T.PRIVINCE,
+        T.CITY,
+        T.AREA,
+        T.ADDRESS,
+        T.REMARK1,
+        T.REMARK2,
+        T.REMARK3,
+        T.CREATED_BY,
+        T.CREATED_TIME,
+        T.UPDATED_BY,
+        T.UPDATED_TIME,
+        T.DEL_FLAG,
+        T.TYPE,
+        T.LEGAL_PERSON,
+        T.TAX_REGISTRATION_NO,
+        T.EMAIL_ADDRESS,
+        T.MAIN_PRODUCT,
+        T.MAIN_BUSINESS,
+        T.REGISTER_USER_ID
+        FROM BASE_CUSTOMER_INFO T
+        WHERE T.DEL_FLAG = '0'
+        <if test="params.customerCode != null and params.customerCode.trim() != ''">
+            AND T.CUSTOMER_CODE LIKE '%${params.customerCode}%'
+        </if>
+    </sql>
+
+    <select id="selectBaseCustomerInfoPage" resultType="com.platform.modules.base.entity.BaseCustomerInfoEntity">
+        <!--<include refid="selectSql"/>-->
+        SELECT
+        T.ID,
+        T.CUSTOMER_CODE,
+        T.CUSTOMER_NAME,
+        T.CUSTOMER_ADDRESS,
+        T.INDUSTRY_TYPE,
+        T.LINK_NAME,
+        T.LINK_PHONE,
+        T.REGION,
+        T.COUNTRY,
+        (SELECT NAME FROM BASE_AREA WHERE ID=T.PRIVINCE) AS PRIVINCE,
+        (SELECT NAME FROM BASE_AREA WHERE ID=T.CITY) AS CITY,
+        (SELECT NAME FROM BASE_AREA WHERE ID=T.AREA) AS AREA,
+        T.ADDRESS,
+        T.REMARK1,
+        T.REMARK2,
+        T.REMARK3,
+        T.CREATED_BY,
+        T.CREATED_TIME,
+        T.UPDATED_BY,
+        T.UPDATED_TIME,
+        T.DEL_FLAG,
+        T.TYPE,
+        T.LEGAL_PERSON,
+        T.TAX_REGISTRATION_NO,
+        T.EMAIL_ADDRESS,
+        T.MAIN_PRODUCT,
+        T.MAIN_BUSINESS,
+        T.REGISTER_USER_ID
+        FROM BASE_CUSTOMER_INFO T
+        WHERE T.DEL_FLAG = '0'
+        <if test="params.customerCode != null and params.customerCode.trim() != ''">
+            AND T.CUSTOMER_CODE LIKE '%${params.customerCode}%'
+        </if>
+    </select>
+
+    <select id="queryAll" resultType="com.platform.modules.base.entity.BaseCustomerInfoEntity">
+        <include refid="selectSql"/>
+    </select>
+    <!--查找买方列表-->
+    <select id="findBuyList" resultType="com.platform.modules.base.entity.BaseCustomerInfoEntity">
+        SELECT *
+         FROM BASE_CUSTOMER_INFO T
+        WHERE T.DEL_FLAG = '0'
+          AND T.TYPE LIKE '%B%'
+    </select>
+    <!--查找卖方列表-->
+    <select id="findSellList" resultType="com.platform.modules.base.entity.BaseCustomerInfoEntity">
+        SELECT *
+         FROM BASE_CUSTOMER_INFO T
+        WHERE T.DEL_FLAG = '0'
+          AND T.TYPE LIKE '%S%'
+    </select>
+    <select id="findCustomerLists" resultType="com.platform.modules.base.entity.BaseCustomerInfoEntity">
+        SELECT *
+        FROM BASE_CUSTOMER_INFO T
+        WHERE T.DEL_FLAG = '0'
+    </select>
+
+    <select id="findById" resultType="com.platform.modules.base.entity.BaseCustomerInfoEntity">
+         SELECT
+        T.ID id,
+        T.CUSTOMER_CODE customerCode,
+        T.CUSTOMER_NAME customerName,
+        T.CUSTOMER_ADDRESS customerAddress,
+        T.INDUSTRY_TYPE,
+        T.LINK_NAME linkName,
+        T.LINK_PHONE linkPhone,
+        T.REGION region,
+        T.COUNTRY,
+        T.PRIVINCE privince,
+        T.CITY city,
+        T.AREA area,
+        T.ADDRESS address,
+        T.REMARK1 remark1,
+        T.REMARK2 remark2,
+        T.REMARK3 remark3,
+        T.CREATED_BY createdBy,
+        T.CREATED_TIME createdTime,
+        T.UPDATED_BY updatedBy,
+        T.UPDATED_TIME updatedTime,
+        T.DEL_FLAG delFlag,
+        T.TYPE type,
+        T.LEGAL_PERSON,
+        T.TAX_REGISTRATION_NO,
+        T.EMAIL_ADDRESS,
+        T.MAIN_PRODUCT,
+        T.MAIN_BUSINESS,
+        T.REGISTER_USER_ID
+        FROM BASE_CUSTOMER_INFO T
+        WHERE T.DEL_FLAG = '0' AND T.ID=#{id}
+    </select>
+
+    <select id="getByOwner" resultType="com.platform.modules.base.entity.BaseCustomerInfoEntity">
+        SELECT
+        T.ID id,
+        T.CUSTOMER_CODE customerCode,
+        T.CUSTOMER_NAME customerName,
+        T.CUSTOMER_ADDRESS customerAddress,
+        T.LINK_NAME linkName,
+        T.LINK_PHONE linkPhone,
+        T.REGION region,
+        T.COUNTRY,
+        T.PRIVINCE privince,
+        T.CITY city,
+        T.AREA area,
+        T.ADDRESS address,
+        T.REMARK1 remark1,
+        T.REMARK2 remark2,
+        T.REMARK3 remark3,
+        T.CREATED_BY createdBy,
+        T.CREATED_TIME createdTime,
+        T.UPDATED_BY updatedBy,
+        T.UPDATED_TIME updatedTime,
+        T.DEL_FLAG delFlag,
+        T.TYPE type,
+        T.INFO_NUM,
+        T.LEGAL_PERSON,
+        T.TAX_REGISTRATION_NO,
+        T.EMAIL_ADDRESS,
+        T.MAIN_PRODUCT,
+        T.MAIN_BUSINESS,
+        T.REGISTER_USER_ID
+        FROM BASE_CUSTOMER_INFO T
+        WHERE T.DEL_FLAG = '0'
+        AND T.TYPE like ('%F%') or T.TYPE like('%C%')
+    </select>
+    <select id="findByRegistryUserId" resultType="com.platform.modules.base.entity.BaseCustomerInfoEntity">
+        SELECT *
+        FROM BASE_CUSTOMER_INFO T
+        WHERE T.DEL_FLAG = '0'
+        AND T.REGISTER_USER_ID = #{registerUserId}
+    </select>
+    <select id="getByOrderItem" resultType="com.platform.modules.base.entity.BaseCustomerInfoEntity">
+        SELECT *
+        FROM BASE_CUSTOMER_INFO T
+        WHERE T.DEL_FLAG = '0'
+        AND T.REGISTER_USER_ID = (
+            SELECT I.CUSTOMER_ID FROM ORDER_HEADER_INFO I WHERE I.ORDER_ITEM = #{orderItem}
+        )
+    </select>
+</mapper>
